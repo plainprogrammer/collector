@@ -56,7 +56,7 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
 
   # RSpec testing framework [https://rspec.info/]
-  gem "rspec-rails", "~> 7.1"
+  gem "rspec-rails", "~> 8.0"
 
   # Acceptance test framework for web applications [https://github.com/teamcapybara/capybara]
   gem "capybara"
