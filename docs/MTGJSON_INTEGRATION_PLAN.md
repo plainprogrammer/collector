@@ -102,6 +102,23 @@ storage/test_mtgjson.sqlite3
 
 **Rationale**: Database files are large (1GB+) and shouldn't be committed to git.
 
+### 1.4 Configure Rails Inflections
+**File**: `config/initializers/inflections.rb`
+
+Add MTGJSON as an acronym to ensure proper constant naming:
+
+```ruby
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.acronym "MTGJSON"
+end
+```
+
+**Rationale**:
+- Ensures Rails correctly handles the `MTGJSON` constant
+- Allows file path `app/models/mtgjson/base.rb` to map to module `MTGJSON::Base`
+- Without this, Rails would expect `Mtgjson::Base` (incorrect capitalization)
+- Required for autoloading to work correctly with the all-caps acronym
+
 ---
 
 ## Phase 2: ActiveRecord Models
@@ -110,7 +127,7 @@ storage/test_mtgjson.sqlite3
 **File**: `app/models/mtgjson/base.rb`
 
 ```ruby
-module Mtgjson
+module MTGJSON
   class Base < ApplicationRecord
     self.abstract_class = true
     connects_to database: { writing: :mtgjson, reading: :mtgjson }
@@ -128,7 +145,7 @@ end
 ```
 
 **Rationale**:
-- Namespace isolation (`Mtgjson::`)
+- Namespace isolation (`MTGJSON::`)
 - Connects to dedicated database
 - Enforces read-only at model level
 - Prevents accidental writes
@@ -139,7 +156,7 @@ end
 **File**: `app/models/mtgjson/card.rb`
 
 ```ruby
-module Mtgjson
+module MTGJSON
   class Card < Base
     self.table_name = 'cards'
     self.primary_key = 'uuid'
@@ -169,7 +186,7 @@ end
 **File**: `app/models/mtgjson/set.rb`
 
 ```ruby
-module Mtgjson
+module MTGJSON
   class Set < Base
     self.table_name = 'sets'
     self.primary_key = 'code'
@@ -193,7 +210,7 @@ end
 
 ```ruby
 # app/models/mtgjson/card_identifier.rb
-module Mtgjson
+module MTGJSON
   class CardIdentifier < Base
     self.table_name = 'cardIdentifiers'
     belongs_to :card, foreign_key: 'uuid', primary_key: 'uuid'
@@ -201,7 +218,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/card_legality.rb
-module Mtgjson
+module MTGJSON
   class CardLegality < Base
     self.table_name = 'cardLegalities'
     belongs_to :card, foreign_key: 'uuid', primary_key: 'uuid'
@@ -211,7 +228,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/card_price.rb
-module Mtgjson
+module MTGJSON
   class CardPrice < Base
     self.table_name = 'cardPrices'
     belongs_to :card, foreign_key: 'uuid', primary_key: 'uuid'
@@ -219,7 +236,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/card_ruling.rb
-module Mtgjson
+module MTGJSON
   class CardRuling < Base
     self.table_name = 'cardRulings'
     belongs_to :card, foreign_key: 'uuid', primary_key: 'uuid'
@@ -227,7 +244,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/card_foreign_data.rb
-module Mtgjson
+module MTGJSON
   class CardForeignData < Base
     self.table_name = 'cardForeignData'
     belongs_to :card, foreign_key: 'uuid', primary_key: 'uuid'
@@ -235,7 +252,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/card_purchase_url.rb
-module Mtgjson
+module MTGJSON
   class CardPurchaseUrl < Base
     self.table_name = 'cardPurchaseUrls'
     belongs_to :card, foreign_key: 'uuid', primary_key: 'uuid'
@@ -243,7 +260,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/token.rb
-module Mtgjson
+module MTGJSON
   class Token < Base
     self.table_name = 'tokens'
     self.primary_key = 'uuid'
@@ -253,7 +270,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/token_identifier.rb
-module Mtgjson
+module MTGJSON
   class TokenIdentifier < Base
     self.table_name = 'tokenIdentifiers'
     belongs_to :token, foreign_key: 'uuid', primary_key: 'uuid'
@@ -261,7 +278,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/set_translation.rb
-module Mtgjson
+module MTGJSON
   class SetTranslation < Base
     self.table_name = 'setTranslations'
     belongs_to :set, foreign_key: 'setCode', primary_key: 'code'
@@ -269,7 +286,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/set_booster_content.rb
-module Mtgjson
+module MTGJSON
   class SetBoosterContent < Base
     self.table_name = 'setBoosterContents'
     belongs_to :set, foreign_key: 'setCode', primary_key: 'code'
@@ -277,7 +294,7 @@ module Mtgjson
 end
 
 # app/models/mtgjson/meta.rb
-module Mtgjson
+module MTGJSON
   class Meta < Base
     self.table_name = 'meta'
 
@@ -393,7 +410,7 @@ namespace :mtgjson do
 
     # Get metadata from database
     begin
-      meta = Mtgjson::Meta.first
+      meta = MTGJSON::Meta.first
       if meta
         puts "\nDatabase Metadata:"
         puts "  Version: #{meta.version}" if meta.respond_to?(:version)
@@ -402,11 +419,11 @@ namespace :mtgjson do
 
       # Get counts
       puts "\nRecord Counts:"
-      puts "  Cards: #{Mtgjson::Card.count}"
-      puts "  Sets: #{Mtgjson::Set.count}"
-      puts "  Tokens: #{Mtgjson::Token.count}"
-      puts "  Rulings: #{Mtgjson::CardRuling.count}"
-      puts "  Legalities: #{Mtgjson::CardLegality.count}"
+      puts "  Cards: #{MTGJSON::Card.count}"
+      puts "  Sets: #{MTGJSON::Set.count}"
+      puts "  Tokens: #{MTGJSON::Token.count}"
+      puts "  Rulings: #{MTGJSON::CardRuling.count}"
+      puts "  Legalities: #{MTGJSON::CardLegality.count}"
     rescue StandardError => e
       puts "\n✗ Could not read database: #{e.message}"
     end
@@ -479,7 +496,7 @@ namespace :mtgjson do
 
     # Check 1: Can connect
     begin
-      Mtgjson::Card.connection
+      MTGJSON::Card.connection
       puts "✓ Database connection successful"
       checks_passed += 1
     rescue StandardError => e
@@ -501,7 +518,7 @@ namespace :mtgjson do
 
     # Check 3: Basic data validation
     begin
-      card_count = Mtgjson::Card.count
+      card_count = MTGJSON::Card.count
       if card_count > 0
         puts "✓ Cards table has data (#{card_count} records)"
         checks_passed += 1
@@ -668,7 +685,7 @@ end
 ```ruby
 require 'rails_helper'
 
-RSpec.describe Mtgjson::Base, type: :model do
+RSpec.describe MTGJSON::Base, type: :model do
   it 'is an abstract class' do
     expect(described_class.abstract_class).to be true
   end
@@ -689,7 +706,7 @@ end
 ```ruby
 require 'rails_helper'
 
-RSpec.describe Mtgjson::Card, type: :model do
+RSpec.describe MTGJSON::Card, type: :model do
   include_examples 'a read-only MTGJSON model'
 
   describe 'associations' do
@@ -752,7 +769,7 @@ end
 ```ruby
 require 'rails_helper'
 
-RSpec.describe Mtgjson::Set, type: :model do
+RSpec.describe MTGJSON::Set, type: :model do
   include_examples 'a read-only MTGJSON model'
 
   describe 'associations' do
@@ -790,7 +807,7 @@ end
 ```ruby
 require 'rails_helper'
 
-RSpec.describe Mtgjson::CardLegality, type: :model do
+RSpec.describe MTGJSON::CardLegality, type: :model do
   include_examples 'a read-only MTGJSON model'
 
   describe 'associations' do
@@ -818,11 +835,11 @@ require 'rails_helper'
 RSpec.describe 'MTGJSON Database Integration', type: :integration do
   describe 'database connection' do
     it 'can connect to MTGJSON database' do
-      expect { Mtgjson::Card.connection }.not_to raise_error
+      expect { MTGJSON::Card.connection }.not_to raise_error
     end
 
     it 'uses separate database file' do
-      config = Mtgjson::Card.connection_db_config
+      config = MTGJSON::Card.connection_db_config
       expect(config.database).to include('mtgjson')
       expect(config.database).not_to include('test.sqlite3')
     end
@@ -830,28 +847,28 @@ RSpec.describe 'MTGJSON Database Integration', type: :integration do
 
   describe 'data availability' do
     it 'has cards data' do
-      expect(Mtgjson::Card.count).to be > 0
+      expect(MTGJSON::Card.count).to be > 0
     end
 
     it 'has sets data' do
-      expect(Mtgjson::Set.count).to be > 0
+      expect(MTGJSON::Set.count).to be > 0
     end
 
     it 'has metadata' do
-      meta = Mtgjson::Meta.first
+      meta = MTGJSON::Meta.first
       expect(meta).to be_present
     end
   end
 
   describe 'relationships' do
     it 'can join cards with sets' do
-      card = Mtgjson::Card.joins(:set).first
+      card = MTGJSON::Card.joins(:set).first
       expect(card).to be_present
-      expect(card.set).to be_a(Mtgjson::Set)
+      expect(card.set).to be_a(MTGJSON::Set)
     end
 
     it 'can join cards with legalities' do
-      card = Mtgjson::Card.joins(:legalities).first
+      card = MTGJSON::Card.joins(:legalities).first
       expect(card).to be_present
       expect(card.legalities).not_to be_empty
     end
@@ -911,7 +928,7 @@ Since MTGJSON is external, read-only data:
 # Only use for mocking/stubbing in application specs
 
 FactoryBot.define do
-  factory :mtgjson_card, class: 'Mtgjson::Card' do
+  factory :mtgjson_card, class: 'MTGJSON::Card' do
     uuid { SecureRandom.uuid }
     name { 'Lightning Bolt' }
     setCode { 'LEA' }
@@ -919,7 +936,7 @@ FactoryBot.define do
     # ... other attributes
 
     # Override new/create to use build_stubbed or mocking
-    initialize_with { Mtgjson::Card.new(attributes) }
+    initialize_with { MTGJSON::Card.new(attributes) }
   end
 end
 ```
@@ -944,11 +961,12 @@ end
 - [ ] Update `config/database.yml` with mtgjson database config
 - [ ] Create `db/mtgjson_migrate/` directory
 - [ ] Update `.gitignore` to exclude database files
+- [ ] Configure Rails inflections for MTGJSON acronym in `config/initializers/inflections.rb`
 - [ ] Run `rake mtgjson:download` to get initial database
 
 ### Models
 - [ ] Create `app/models/mtgjson/` directory
-- [ ] Implement `Mtgjson::Base` abstract class
+- [ ] Implement `MTGJSON::Base` abstract class
 - [ ] Implement core models (Card, Set, Token)
 - [ ] Implement supporting models (Identifiers, Legalities, Prices, etc.)
 - [ ] Add associations between models
@@ -968,7 +986,7 @@ end
 ### Testing
 - [ ] Create `spec/support/mtgjson.rb` with shared config
 - [ ] Create shared examples for read-only behavior
-- [ ] Write spec for `Mtgjson::Base`
+- [ ] Write spec for `MTGJSON::Base`
 - [ ] Write specs for each model
 - [ ] Write integration specs
 - [ ] Write rake task specs
@@ -997,13 +1015,13 @@ end
 ### Querying Cards
 ```ruby
 # Find a specific card
-card = Mtgjson::Card.find_by(name: 'Lightning Bolt')
+card = MTGJSON::Card.find_by(name: 'Lightning Bolt')
 
 # Search cards
-cards = Mtgjson::Card.by_name('Dragon').by_color('R')
+cards = MTGJSON::Card.by_name('Dragon').by_color('R')
 
 # Get card with associations
-card = Mtgjson::Card.includes(:legalities, :prices).find_by(name: 'Black Lotus')
+card = MTGJSON::Card.includes(:legalities, :prices).find_by(name: 'Black Lotus')
 
 # Check legality
 card.legalities.legal_in('Commander')
@@ -1015,13 +1033,13 @@ card.prices.first&.price
 ### Querying Sets
 ```ruby
 # All released sets
-sets = Mtgjson::Set.released
+sets = MTGJSON::Set.released
 
 # Sets by year
-sets = Mtgjson::Set.by_year(2024)
+sets = MTGJSON::Set.by_year(2024)
 
 # Get set with cards
-set = Mtgjson::Set.includes(:cards).find_by(code: 'MH3')
+set = MTGJSON::Set.includes(:cards).find_by(code: 'MH3')
 ```
 
 ### Cross-Database Queries
@@ -1039,7 +1057,7 @@ class CollectionItem < ApplicationRecord
   attribute :card_uuid, :string
 
   def card
-    @card ||= Mtgjson::Card.find_by(uuid: card_uuid)
+    @card ||= MTGJSON::Card.find_by(uuid: card_uuid)
   end
 end
 
