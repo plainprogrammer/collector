@@ -14,10 +14,10 @@ module MTGJSON
     has_many :purchase_urls, foreign_key: "uuid", primary_key: "uuid", class_name: "CardPurchaseUrl"
 
     # Scopes
-    scope :by_name, ->(name) { where("name LIKE ?", "%#{name}%") }
+    scope :by_name, ->(name) { where("name LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(name)}%") }
     scope :by_set, ->(set_code) { where(setCode: set_code) }
-    scope :by_color, ->(colors) { where("colors LIKE ?", "%#{colors}%") }
-    scope :by_type, ->(type) { where("type LIKE ?", "%#{type}%") }
+    scope :by_color, ->(colors) { where("colors LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(colors)}%") }
+    scope :by_type, ->(type) { where("type LIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(type)}%") }
 
     # Virtual attributes for JSON fields (if stored as JSON strings)
     # MTGJSON may store arrays as JSON - adjust as needed
