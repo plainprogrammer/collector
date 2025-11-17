@@ -97,15 +97,13 @@ jobs:
 
       - name: Download MTGJSON database
         if: steps.mtgjson-cache.outputs.cache-hit != 'true'
-        env:
-          RAILS_ENV: test
         run: |
           echo "Downloading MTGJSON database..."
           bin/rails mtgjson:download
 
       - name: Verify MTGJSON database
         env:
-          RAILS_ENV: test
+          RAILS_ENV: development
         run: bin/rails mtgjson:verify
 
       - name: Set up MTGJSON test database
@@ -114,8 +112,6 @@ jobs:
         run: bin/rails mtgjson:setup_test
 
       - name: Run unit tests
-        env:
-          RAILS_ENV: test
         run: bin/rspec --tag ~type:system --format progress
 
       - name: Install Chrome for system tests
@@ -124,7 +120,5 @@ jobs:
           chrome-version: stable
 
       - name: Run system tests
-        env:
-          RAILS_ENV: test
         run: bin/rspec --tag type:system --format progress
 
