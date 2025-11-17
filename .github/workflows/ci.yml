@@ -82,9 +82,36 @@ jobs:
           RAILS_ENV: test
         run: bin/rails db:prepare
 
-      - name: Run unit tests
+      - name: Get current week for cache key
+        id: date
+        run: echo "week=$(date +%Y-W%V)" >> $GITHUB_OUTPUT
+
+      - name: Cache MTGJSON database
+        uses: actions/cache@v4
+        id: mtgjson-cache
+        with:
+          path: storage/mtgjson.sqlite3
+          key: mtgjson-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}-weekly-${{ steps.date.outputs.week }}
+          restore-keys: |
+            mtgjson-${{ runner.os }}-${{ hashFiles('.github/workflows/ci.yml') }}-weekly-
+
+      - name: Download MTGJSON database
+        if: steps.mtgjson-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "Downloading MTGJSON database..."
+          bin/rails mtgjson:download
+
+      - name: Verify MTGJSON database
+        env:
+          RAILS_ENV: development
+        run: bin/rails mtgjson:verify
+
+      - name: Set up MTGJSON test database
         env:
           RAILS_ENV: test
+        run: bin/rails mtgjson:setup_test
+
+      - name: Run unit tests
         run: bin/rspec --tag ~type:system --format progress
 
       - name: Install Chrome for system tests
@@ -93,7 +120,5 @@ jobs:
           chrome-version: stable
 
       - name: Run system tests
-        env:
-          RAILS_ENV: test
         run: bin/rspec --tag type:system --format progress
 
