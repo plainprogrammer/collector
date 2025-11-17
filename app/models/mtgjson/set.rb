@@ -2,6 +2,7 @@ module MTGJSON
   class Set < Base
     self.table_name = "sets"
     self.primary_key = "code"
+    self.inheritance_column = nil  # Disable STI - 'type' is a set attribute, not inheritance
 
     # Associations
     has_many :cards, foreign_key: "setCode", primary_key: "code"

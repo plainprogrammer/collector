@@ -1,7 +1,6 @@
 namespace :mtgjson do
   desc "Download the latest MTGJSON SQLite database"
   task download: :environment do
-    require "net/http"
     require "fileutils"
 
     url = "https://mtgjson.com/api/v5/AllPrintings.sqlite"
@@ -14,26 +13,12 @@ namespace :mtgjson do
     # Create storage directory if it doesn't exist
     FileUtils.mkdir_p(Rails.root.join("storage"))
 
-    # Download with progress
-    uri = URI(url)
-    Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
-      request = Net::HTTP::Get.new(uri)
+    # Use curl for better SSL certificate handling
+    # -L follows redirects, -o specifies output file, -# shows progress bar
+    success = system("curl", "-L", "-#", "-o", temp_path.to_s, url)
 
-      http.request(request) do |response|
-        total_size = response["Content-Length"].to_i
-        downloaded = 0
-
-        File.open(temp_path, "wb") do |file|
-          response.read_body do |chunk|
-            file.write(chunk)
-            downloaded += chunk.size
-
-            # Progress indicator
-            percentage = (downloaded * 100.0 / total_size).round(2)
-            print "\rProgress: #{percentage}% (#{downloaded}/#{total_size} bytes)"
-          end
-        end
-      end
+    unless success
+      raise "Download failed. Please check your internet connection and try again."
     end
 
     # Move temp file to final location
