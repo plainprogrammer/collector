@@ -10,12 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_18_000002) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_18_000003) do
   create_table "collections", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
     t.string "name", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "items", force: :cascade do |t|
+    t.date "acquisition_date"
+    t.decimal "acquisition_price", precision: 10, scale: 2
+    t.boolean "altered", default: false, null: false
+    t.string "card_uuid", null: false
+    t.integer "collection_id", null: false
+    t.integer "condition", null: false
+    t.datetime "created_at", null: false
+    t.integer "finish", null: false
+    t.decimal "grading_score", precision: 3, scale: 1
+    t.string "grading_service"
+    t.string "language", limit: 2, default: "en", null: false
+    t.boolean "misprint", default: false, null: false
+    t.text "notes"
+    t.boolean "signed", default: false, null: false
+    t.integer "storage_unit_id"
+    t.datetime "updated_at", null: false
+    t.index ["card_uuid"], name: "index_items_on_card_uuid"
+    t.index ["collection_id", "card_uuid"], name: "index_items_on_collection_id_and_card_uuid"
+    t.index ["collection_id"], name: "index_items_on_collection_id"
+    t.index ["storage_unit_id"], name: "index_items_on_storage_unit_id"
   end
 
   create_table "storage_units", force: :cascade do |t|
@@ -32,6 +55,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_18_000002) do
     t.index ["storage_unit_type"], name: "index_storage_units_on_storage_unit_type"
   end
 
+  add_foreign_key "items", "collections"
+  add_foreign_key "items", "storage_units"
   add_foreign_key "storage_units", "collections"
   add_foreign_key "storage_units", "storage_units", column: "parent_id"
 end
