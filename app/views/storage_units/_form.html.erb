@@ -1,0 +1,95 @@
+<%= form_with model: [collection, storage_unit],
+              url: storage_unit.persisted? ? storage_unit_path(storage_unit) : collection_storage_units_path(collection),
+              class: "space-y-4",
+              data: { controller: "form storage-unit-form" } do |form| %>
+  <% if storage_unit.errors.any? %>
+    <div role="alert" class="rounded-lg bg-red-50 border border-red-200 p-3">
+      <div class="flex items-start gap-2">
+        <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(storage_unit.errors.count, "error") %> prohibited this storage unit from being saved:
+          </h3>
+          <ul class="mt-1 text-sm text-red-700 list-disc list-inside">
+            <% storage_unit.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <%= form.label :storage_unit_type, "Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.select :storage_unit_type,
+          StorageUnit.storage_unit_types.keys.map { |t| [t.humanize, t] },
+          { include_blank: "Select a type..." },
+          class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors",
+          required: true,
+          "aria-required": "true",
+          data: { action: "storage-unit-form#typeChanged", "storage-unit-form-target": "typeSelect" } %>
+      <% if storage_unit.errors[:storage_unit_type].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= storage_unit.errors[:storage_unit_type].join(", ") %></p>
+      <% end %>
+    </div>
+
+    <div>
+      <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.text_field :name,
+          class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors",
+          placeholder: "e.g., Commander Deck Box",
+          required: true,
+          "aria-required": "true" %>
+      <% if storage_unit.errors[:name].any? %>
+        <p class="mt-1 text-sm text-red-600"><%= storage_unit.errors[:name].join(", ") %></p>
+      <% end %>
+    </div>
+  </div>
+
+  <div>
+    <%= form.label :description, class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= form.text_area :description,
+        rows: 2,
+        class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-y",
+        placeholder: "Optional description" %>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div>
+      <%= form.label :location, class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.text_field :location,
+          class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors",
+          placeholder: "e.g., Shelf A, Drawer 2" %>
+      <p class="mt-1 text-xs text-gray-500">Where this storage unit is physically located</p>
+    </div>
+
+    <div>
+      <%= form.label :parent_id, "Parent Storage", class: "block text-sm font-medium text-gray-700 mb-1" %>
+      <%= form.select :parent_id,
+          @available_parents.map { |p| ["#{p.storage_unit_type.humanize}: #{p.name}", p.id] },
+          { include_blank: "None (top-level)" },
+          class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" %>
+      <p class="mt-1 text-xs text-gray-500">Nest this inside another storage unit</p>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-200">
+    <% if storage_unit.persisted? %>
+      <%= link_to "Cancel", collection_path(collection),
+          class: "px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors",
+          data: { turbo_frame: "_top" } %>
+    <% else %>
+      <button type="button"
+              class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+              data-action="click->form#cancel">
+        Cancel
+      </button>
+    <% end %>
+    <%= form.submit storage_unit.persisted? ? "Update" : "Add Storage Unit",
+        class: "px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors cursor-pointer" %>
+  </div>
+<% end %>

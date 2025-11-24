@@ -1,0 +1,26 @@
+<%
+  badge_config = case storage_unit.storage_unit_type
+  when "box"
+    { bg: "bg-amber-100", text: "text-amber-800", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" }
+  when "binder"
+    { bg: "bg-blue-100", text: "text-blue-800", icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" }
+  when "deck"
+    { bg: "bg-purple-100", text: "text-purple-800", icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" }
+  when "deck_box"
+    { bg: "bg-violet-100", text: "text-violet-800", icon: "M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" }
+  when "portfolio"
+    { bg: "bg-emerald-100", text: "text-emerald-800", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" }
+  when "toploader_case"
+    { bg: "bg-cyan-100", text: "text-cyan-800", icon: "M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" }
+  when "loose"
+    { bg: "bg-gray-100", text: "text-gray-800", icon: "M4 6h16M4 10h16M4 14h16M4 18h16" }
+  else
+    { bg: "bg-gray-100", text: "text-gray-600", icon: "M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }
+  end
+%>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium <%= badge_config[:bg] %> <%= badge_config[:text] %>">
+  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= badge_config[:icon] %>"/>
+  </svg>
+  <%= storage_unit.storage_unit_type.humanize %>
+</span>

@@ -1,0 +1,103 @@
+<%= turbo_frame_tag storage_unit do %>
+  <article class="bg-white rounded-lg border border-gray-200 shadow-sm"
+           data-controller="expandable"
+           data-expandable-open-value="false">
+    <div class="p-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3 flex-1 min-w-0">
+          <button type="button"
+                  class="mt-0.5 p-1 rounded hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
+                  data-action="expandable#toggle"
+                  data-expandable-target="button"
+                  aria-expanded="false"
+                  aria-controls="<%= dom_id(storage_unit, :children) %>">
+            <svg class="w-4 h-4 text-gray-500 transition-transform duration-200"
+                 data-expandable-target="icon"
+                 fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <%= render "storage_units/type_badge", storage_unit: storage_unit %>
+              <h3 class="font-medium text-gray-900 truncate"><%= storage_unit.name %></h3>
+            </div>
+
+            <% if storage_unit.description.present? %>
+              <p class="mt-1 text-sm text-gray-600 line-clamp-1"><%= storage_unit.description %></p>
+            <% end %>
+
+            <div class="mt-2 flex items-center gap-4 text-xs text-gray-500">
+              <span class="flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <%= pluralize(storage_unit.items.size, "card") %>
+              </span>
+              <% if storage_unit.children.any? %>
+                <span class="flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                  </svg>
+                  <%= pluralize(storage_unit.children.size, "nested unit") %>
+                </span>
+              <% end %>
+              <% if storage_unit.location.present? %>
+                <span class="flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <%= storage_unit.location %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <nav class="flex items-center gap-1" aria-label="Storage unit actions">
+          <%= link_to edit_storage_unit_path(storage_unit),
+              class: "p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors",
+              "aria-label": "Edit #{storage_unit.name}" do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          <% end %>
+          <%= button_to storage_unit_path(storage_unit),
+              method: :delete,
+              form: { data: { turbo_confirm: "Are you sure you want to delete this storage unit? Items inside will become loose cards." } },
+              class: "p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors",
+              "aria-label": "Delete #{storage_unit.name}" do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          <% end %>
+        </nav>
+      </div>
+    </div>
+
+    <div id="<%= dom_id(storage_unit, :children) %>"
+         class="hidden border-t border-gray-100 bg-gray-50/50 p-4 pl-12"
+         data-expandable-target="content">
+      <% if storage_unit.children.any? %>
+        <div class="space-y-2">
+          <%= render partial: "storage_units/storage_unit", collection: storage_unit.children, as: :storage_unit %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500 italic">No nested storage units</p>
+      <% end %>
+
+      <div class="mt-3">
+        <%= link_to new_collection_storage_unit_path(storage_unit.collection, parent_id: storage_unit.id),
+            class: "inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 focus:outline-none focus:underline transition-colors",
+            data: { turbo_frame: "new_storage_unit" } do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Add nested storage
+        <% end %>
+      </div>
+    </div>
+  </article>
+<% end %>

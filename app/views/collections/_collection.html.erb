@@ -1,0 +1,28 @@
+<%= turbo_frame_tag collection do %>
+  <article class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+    <%= link_to collection, class: "block p-6", "aria-label": "View #{collection.name} collection" do %>
+      <header class="flex items-start justify-between">
+        <h2 class="text-lg font-semibold text-gray-900 truncate"><%= collection.name %></h2>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+          <%= pluralize(collection.items.size, "card") %>
+        </span>
+      </header>
+
+      <% if collection.description.present? %>
+        <p class="mt-2 text-sm text-gray-600 line-clamp-2"><%= collection.description %></p>
+      <% end %>
+
+      <footer class="mt-4 flex items-center justify-between text-sm text-gray-500">
+        <div class="flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+          </svg>
+          <span><%= pluralize(collection.storage_units.size, "storage unit") %></span>
+        </div>
+        <time datetime="<%= collection.updated_at.iso8601 %>">
+          Updated <%= time_ago_in_words(collection.updated_at) %> ago
+        </time>
+      </footer>
+    <% end %>
+  </article>
+<% end %>

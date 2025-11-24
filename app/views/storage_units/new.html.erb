@@ -1,0 +1,8 @@
+<% content_for :title, "New Storage Unit" %>
+
+<%= turbo_frame_tag "new_storage_unit" do %>
+  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-4">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Add Storage Unit</h2>
+    <%= render "form", storage_unit: @storage_unit, collection: @collection %>
+  </div>
+<% end %>

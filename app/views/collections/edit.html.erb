@@ -1,0 +1,32 @@
+<% content_for :title, "Edit #{@collection.name}" %>
+
+<section class="w-full max-w-2xl mx-auto" aria-labelledby="edit-collection-heading">
+  <nav class="mb-4" aria-label="Breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-gray-600">
+      <li>
+        <%= link_to collections_path, class: "hover:text-indigo-600 transition-colors" do %>
+          Collections
+        <% end %>
+      </li>
+      <li aria-hidden="true">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+        </svg>
+      </li>
+      <li>
+        <%= link_to @collection.name, collection_path(@collection), class: "hover:text-indigo-600 transition-colors" %>
+      </li>
+      <li aria-hidden="true">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+        </svg>
+      </li>
+      <li aria-current="page" class="font-medium text-gray-900">Edit</li>
+    </ol>
+  </nav>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <h1 id="edit-collection-heading" class="text-2xl font-bold text-gray-900 mb-6">Edit Collection</h1>
+    <%= render "form", collection: @collection %>
+  </div>
+</section>

@@ -1,0 +1,5 @@
+<%= turbo_stream.append "storage_units", @storage_unit %>
+<%= turbo_stream.update "new_storage_unit", "" %>
+<%= turbo_stream.update "flash" do %>
+  <%= render "shared/flash" %>
+<% end %>
