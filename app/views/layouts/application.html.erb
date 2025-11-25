@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <title><%= content_for(:title) || "Collector" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Collector">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="description" content="Manage your Magic: The Gathering card collection">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -23,9 +24,52 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+  <body class="min-h-screen bg-gray-50">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-lg">
+      Skip to main content
+    </a>
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <nav class="container mx-auto px-4 sm:px-6 lg:px-8" aria-label="Main navigation">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-8">
+            <%= link_to root_path, class: "flex items-center gap-2 text-gray-900 hover:text-indigo-600 transition-colors", "aria-label": "Collector - Home" do %>
+              <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+              <span class="font-bold text-xl">Collector</span>
+            <% end %>
+
+            <div class="hidden sm:flex items-center gap-6">
+              <%= link_to "Collections", collections_path,
+                  class: "text-sm font-medium #{request.path.start_with?('/collections') || request.path == '/' ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900'} transition-colors" %>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <%= link_to new_collection_path,
+                class: "hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors",
+                "aria-label": "Create new collection" do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              New Collection
+            <% end %>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main-content" class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <%= yield %>
     </main>
+
+    <footer class="border-t border-gray-200 bg-white mt-auto">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <p class="text-center text-sm text-gray-500">
+          Collector - Magic: The Gathering Collection Manager
+        </p>
+      </div>
+    </footer>
   </body>
 </html>

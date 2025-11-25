@@ -1,0 +1,117 @@
+<% content_for :title, @collection.name %>
+
+<section class="w-full" aria-labelledby="collection-heading">
+  <nav class="mb-4" aria-label="Breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-gray-600">
+      <li>
+        <%= link_to collections_path, class: "hover:text-indigo-600 transition-colors" do %>
+          Collections
+        <% end %>
+      </li>
+      <li aria-hidden="true">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+        </svg>
+      </li>
+      <li aria-current="page" class="font-medium text-gray-900"><%= @collection.name %></li>
+    </ol>
+  </nav>
+
+  <%= turbo_frame_tag "flash" do %>
+    <%= render "shared/flash" %>
+  <% end %>
+
+  <header class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div class="flex-1">
+        <h1 id="collection-heading" class="text-2xl font-bold text-gray-900"><%= @collection.name %></h1>
+        <% if @collection.description.present? %>
+          <p class="mt-2 text-gray-600"><%= @collection.description %></p>
+        <% end %>
+        <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
+          <div class="flex items-center gap-1">
+            <dt class="sr-only">Total cards</dt>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <dd><%= pluralize(@collection.items.count, "card") %></dd>
+          </div>
+          <div class="flex items-center gap-1">
+            <dt class="sr-only">Storage units</dt>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+            </svg>
+            <dd><%= pluralize(@collection.storage_units.count, "storage unit") %></dd>
+          </div>
+          <div class="flex items-center gap-1">
+            <dt class="sr-only">Last updated</dt>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <dd>Updated <time datetime="<%= @collection.updated_at.iso8601 %>"><%= time_ago_in_words(@collection.updated_at) %> ago</time></dd>
+          </div>
+        </dl>
+      </div>
+      <nav class="flex items-center gap-2" aria-label="Collection actions">
+        <%= link_to edit_collection_path(@collection),
+            class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors",
+            "aria-label": "Edit collection" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Edit
+        <% end %>
+        <%= button_to collection_path(@collection),
+            method: :delete,
+            form: { data: { turbo_confirm: "Are you sure you want to delete this collection? This will also delete all storage units and items within it." } },
+            class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-red-700 bg-white border border-red-300 rounded-lg hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors",
+            "aria-label": "Delete collection" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Delete
+        <% end %>
+      </nav>
+    </div>
+  </header>
+
+  <section aria-labelledby="storage-heading">
+    <header class="flex items-center justify-between mb-4">
+      <h2 id="storage-heading" class="text-xl font-semibold text-gray-900">Storage Units</h2>
+      <%= link_to new_collection_storage_unit_path(@collection),
+          class: "inline-flex items-center gap-2 px-3 py-2 text-sm font-medium bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors",
+          data: { turbo_frame: "new_storage_unit" },
+          "aria-label": "Add new storage unit" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Add Storage
+      <% end %>
+    </header>
+
+    <%= turbo_frame_tag "new_storage_unit" %>
+
+    <div id="storage_units" class="space-y-3">
+      <% if @storage_units.any? %>
+        <%= render partial: "storage_units/storage_unit", collection: @storage_units, as: :storage_unit %>
+      <% else %>
+        <div class="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+          </svg>
+          <h3 class="mt-2 text-sm font-semibold text-gray-900">No storage units</h3>
+          <p class="mt-1 text-sm text-gray-500">Add boxes, binders, decks, or other storage to organize your cards.</p>
+          <div class="mt-6">
+            <%= link_to new_collection_storage_unit_path(@collection),
+                class: "inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors" do %>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              Add Storage Unit
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
+</section>

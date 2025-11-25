@@ -1,0 +1,50 @@
+<%= form_with model: collection, class: "space-y-6", data: { controller: "form" } do |form| %>
+  <% if collection.errors.any? %>
+    <div role="alert" class="rounded-lg bg-red-50 border border-red-200 p-4">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <h2 class="text-sm font-medium text-red-800">
+            <%= pluralize(collection.errors.count, "error") %> prohibited this collection from being saved:
+          </h2>
+          <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+            <% collection.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= form.text_field :name,
+        class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors",
+        placeholder: "e.g., My Commander Collection",
+        "aria-required": "true",
+        "aria-describedby": collection.errors[:name].any? ? "name-error" : nil %>
+    <% if collection.errors[:name].any? %>
+      <p id="name-error" class="mt-1 text-sm text-red-600"><%= collection.errors[:name].join(", ") %></p>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.label :description, class: "block text-sm font-medium text-gray-700 mb-1" %>
+    <%= form.text_area :description,
+        rows: 4,
+        class: "block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-y",
+        placeholder: "Describe your collection (optional)" %>
+    <p class="mt-1 text-sm text-gray-500">A brief description helps you remember what this collection contains.</p>
+  </div>
+
+  <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+    <%= link_to "Cancel",
+        collection.persisted? ? collection_path(collection) : collections_path,
+        class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors" %>
+    <%= form.submit collection.persisted? ? "Update Collection" : "Create Collection",
+        class: "px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors cursor-pointer" %>
+  </div>
+<% end %>
