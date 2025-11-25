@@ -1,6 +1,6 @@
 <%= turbo_frame_tag collection do %>
   <article class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-    <%= link_to collection, class: "block p-6", "aria-label": "View #{collection.name} collection" do %>
+    <%= link_to collection, class: "block p-6", "aria-label": "View #{collection.name} collection", data: { turbo_frame: "_top" } do %>
       <header class="flex items-start justify-between">
         <h2 class="text-lg font-semibold text-gray-900 truncate"><%= collection.name %></h2>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">

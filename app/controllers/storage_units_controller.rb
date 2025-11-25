@@ -20,10 +20,7 @@ class StorageUnitsController < ApplicationController
     @storage_unit = @collection.storage_units.build(storage_unit_params)
 
     if @storage_unit.save
-      respond_to do |format|
-        format.html { redirect_to @collection, notice: "Storage unit was successfully created." }
-        format.turbo_stream
-      end
+      redirect_to @collection, notice: "Storage unit was successfully created.", status: :see_other
     else
       @available_parents = @collection.storage_units.where.not(storage_unit_type: :loose)
       render :new, status: :unprocessable_entity
@@ -39,10 +36,7 @@ class StorageUnitsController < ApplicationController
 
   def update
     if @storage_unit.update(storage_unit_params)
-      respond_to do |format|
-        format.html { redirect_to @storage_unit.collection, notice: "Storage unit was successfully updated." }
-        format.turbo_stream
-      end
+      redirect_to @storage_unit.collection, notice: "Storage unit was successfully updated.", status: :see_other
     else
       @collection = @storage_unit.collection
       @available_parents = @collection.storage_units
@@ -57,8 +51,8 @@ class StorageUnitsController < ApplicationController
     @storage_unit.destroy
 
     respond_to do |format|
-      format.html { redirect_to collection, notice: "Storage unit was successfully deleted." }
-      format.turbo_stream
+      format.turbo_stream { flash.now[:notice] = "Storage unit was successfully deleted." }
+      format.html { redirect_to collection, notice: "Storage unit was successfully deleted.", status: :see_other }
     end
   end
 

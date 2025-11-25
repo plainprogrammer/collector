@@ -1,4 +1,4 @@
 <%= turbo_stream.remove @storage_unit %>
 <%= turbo_stream.update "flash" do %>
-  <%= render "shared/flash" %>
+  <%= render "shared/flash", notice: "Storage unit was successfully deleted." %>
 <% end %>

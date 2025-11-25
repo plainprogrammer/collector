@@ -17,10 +17,7 @@ class CollectionsController < ApplicationController
     @collection = Collection.new(collection_params)
 
     if @collection.save
-      respond_to do |format|
-        format.html { redirect_to @collection, notice: "Collection was successfully created." }
-        format.turbo_stream
-      end
+      redirect_to @collection, notice: "Collection was successfully created.", status: :see_other
     else
       render :new, status: :unprocessable_entity
     end
@@ -31,10 +28,7 @@ class CollectionsController < ApplicationController
 
   def update
     if @collection.update(collection_params)
-      respond_to do |format|
-        format.html { redirect_to @collection, notice: "Collection was successfully updated." }
-        format.turbo_stream
-      end
+      redirect_to @collection, notice: "Collection was successfully updated.", status: :see_other
     else
       render :edit, status: :unprocessable_entity
     end
@@ -42,11 +36,7 @@ class CollectionsController < ApplicationController
 
   def destroy
     @collection.destroy
-
-    respond_to do |format|
-      format.html { redirect_to collections_path, notice: "Collection was successfully deleted." }
-      format.turbo_stream
-    end
+    redirect_to collections_path, notice: "Collection was successfully deleted.", status: :see_other
   end
 
   private
