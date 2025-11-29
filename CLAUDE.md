@@ -169,7 +169,7 @@ Application models (in `app/models/`) inherit from `ApplicationRecord` and conne
 
 - `Collection` - Top-level container for organizing cards. Has many storage units and items. Full CRUD UI at `/collections`.
 - `StorageUnit` - Physical storage containers (boxes, binders, decks, etc.) within a collection. Supports nested hierarchies via parent/children associations. Full CRUD UI nested under collections at `/collections/:id/storage_units`.
-- `Item` - Individual cards in a collection. References MTGJSON cards via `card_uuid`. Tracks finish (foil variants), condition, language, and optional grading score.
+- `Item` - Individual cards in a collection. References MTGJSON cards via `card_uuid`. Tracks finish (foil finishes), condition, language, and optional grading score.
 
 **Cross-database references**: To reference MTGJSON data, store the UUID and query through methods:
 
