@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Collector is a Rails 8.1.1 application for managing Magic: The Gathering card collections. It integrates with the MTGJSON SQLite database to provide comprehensive card data as a read-only reference source.
+Collector is a Rails 8.1 application for managing Magic: The Gathering card collections. It integrates with the MTGJSON SQLite database to provide comprehensive card data as a read-only reference source.
 
-**Ruby Version**: 3.4.7
-**Rails Version**: 8.1.1
+**Ruby Version**: 3.4
+**Rails Version**: 8.1
 **License**: GNU AGPL v3.0
 
 ## Commands
@@ -29,7 +29,7 @@ Both commands must pass before committing changes. This ensures code quality and
 ### Testing
 
 ```bash
-# Run all tests
+# Run all tests (including system tests)
 bin/rspec
 
 # Run specific test file
@@ -37,13 +37,9 @@ bin/rspec spec/models/mtgjson/card_spec.rb
 
 # Run specific test by line number
 bin/rspec spec/models/mtgjson/card_spec.rb:24
-
-# Run only unit tests (exclude system tests)
-bin/rspec --tag ~type:system
-
-# Run only system tests
-bin/rspec --tag type:system
 ```
+
+**Important**: Always run the full test suite (`bin/rspec`) before committing. This includes both unit tests and system tests to ensure complete coverage.
 
 ### Code Quality
 
@@ -169,18 +165,22 @@ All MTGJSON models are namespaced under `MTGJSON::` and located in `app/models/m
 
 ### Application Models
 
-Application models (in `app/models/`) inherit from `ApplicationRecord` and connect to the primary database. To reference MTGJSON data, store the UUID or identifier and query through methods:
+Application models (in `app/models/`) inherit from `ApplicationRecord` and connect to the primary database:
+
+- `Collection` - Top-level container for organizing cards. Has many storage units and items. Full CRUD UI at `/collections`.
+- `StorageUnit` - Physical storage containers (boxes, binders, decks, etc.) within a collection. Supports nested hierarchies via parent/children associations. Full CRUD UI nested under collections at `/collections/:id/storage_units`.
+- `Item` - Individual cards in a collection. References MTGJSON cards via `card_uuid`. Tracks finish (foil finishes), condition, language, and optional grading score.
+
+**Cross-database references**: To reference MTGJSON data, store the UUID and query through methods:
 
 ```ruby
-class CollectionItem < ApplicationRecord
-  belongs_to :user
-
+class Item < ApplicationRecord
   # Store MTGJSON card UUID
-  attribute :card_uuid, :string
+  validates :card_uuid, presence: true
 
   # Access MTGJSON data via method
   def card
-    @card ||= MTGJSON::Card.find(card_uuid)
+    @card ||= MTGJSON::Card.find_by(uuid: card_uuid)
   end
 end
 ```
@@ -242,7 +242,7 @@ Cache key rotates weekly: `mtgjson-{os}-weekly-{year}-W{week}`
 - **Propshaft**: Modern asset pipeline
 
 ### Backend
-- **Rails 8.1.1**: Latest Rails with multi-database support
+- **Rails 8.1**: Latest Rails with multi-database support
 - **SQLite3**: Dual databases (primary + mtgjson)
 - **Solid Cache**: Database-backed cache (replaces Redis for many use cases)
 - **Solid Queue**: Database-backed job queue (replaces Sidekiq/Resque)
@@ -250,7 +250,7 @@ Cache key rotates weekly: `mtgjson-{os}-weekly-{year}-W{week}`
 - **Puma**: Web server
 
 ### Testing
-- **RSpec 7.1**: Testing framework (not Minitest)
+- **RSpec 8.0**: Testing framework (not Minitest)
 - **Capybara**: Acceptance testing for web UI
 - **Selenium WebDriver**: Browser automation for system tests
 
