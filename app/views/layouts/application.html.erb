@@ -43,6 +43,8 @@
             <div class="hidden sm:flex items-center gap-6">
               <%= link_to "Collections", collections_path,
                   class: "text-sm font-medium #{request.path.start_with?('/collections') || request.path == '/' ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900'} transition-colors" %>
+              <%= link_to "Sets", sets_path,
+                  class: "text-sm font-medium #{request.path.start_with?('/sets') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900'} transition-colors" %>
             </div>
           </div>
 
