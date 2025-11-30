@@ -45,6 +45,8 @@
                   class: "text-sm font-medium #{request.path.start_with?('/collections') || request.path == '/' ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900'} transition-colors" %>
               <%= link_to "Sets", sets_path,
                   class: "text-sm font-medium #{request.path.start_with?('/sets') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900'} transition-colors" %>
+              <%= link_to "Cards", cards_path,
+                  class: "text-sm font-medium #{request.path.start_with?('/cards') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900'} transition-colors" %>
             </div>
           </div>
 

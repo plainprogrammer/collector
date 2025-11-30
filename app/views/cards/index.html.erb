@@ -1,0 +1,53 @@
+<% content_for :title, "Card Search" %>
+
+<section class="w-full" aria-labelledby="cards-heading">
+  <header class="mb-8">
+    <h1 id="cards-heading" class="text-3xl font-bold text-gray-900">Card Search</h1>
+    <p class="mt-1 text-gray-600">Find cards in the Magic: The Gathering database</p>
+  </header>
+
+  <%= render "search_form" %>
+
+  <%= turbo_frame_tag "flash" do %>
+    <%= render "shared/flash" %>
+  <% end %>
+
+  <div id="search-results" class="mt-8">
+    <% if @show_prompt %>
+      <%= render "search_prompt" %>
+    <% elsif @cards.any? %>
+      <div class="mb-4 text-sm text-gray-600">
+        <%= @pagy.count %> <%= "card".pluralize(@pagy.count) %> found
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mana</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Set</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rarity</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @cards.each do |card| %>
+                <%= render "card_row", card: card %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <% if @pagy.last > 1 %>
+        <nav class="mt-6" aria-label="Pagination">
+          <%== @pagy.series_nav %>
+        </nav>
+      <% end %>
+    <% else %>
+      <%= render "no_results" %>
+    <% end %>
+  </div>
+</section>

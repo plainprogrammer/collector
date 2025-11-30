@@ -1,0 +1,86 @@
+<% content_for :title, @card.name %>
+
+<section class="w-full" aria-labelledby="card-heading">
+  <nav class="mb-6 flex gap-4">
+    <%= link_to cards_path, class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Search
+    <% end %>
+    <% if @card.set %>
+      <%= link_to set_path(@card.setCode), class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition-colors" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+        </svg>
+        View Set: <%= @card.set.name %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <%= turbo_frame_tag "flash" do %>
+    <%= render "shared/flash" %>
+  <% end %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        <div class="aspect-[488/680] bg-gray-100 rounded-lg flex items-center justify-center">
+          <span class="text-gray-400 text-sm">Card image placeholder</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2 space-y-6">
+      <header>
+        <h1 id="card-heading" class="text-3xl font-bold text-gray-900"><%= @card.name %></h1>
+        <p class="mt-1 text-lg text-gray-600"><%= @card.manaCost %></p>
+      </header>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+        <div>
+          <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Type</h2>
+          <p class="mt-1 text-gray-900"><%= @card.type %></p>
+        </div>
+
+        <% if @card.text.present? %>
+          <div>
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Text</h2>
+            <p class="mt-1 text-gray-900 whitespace-pre-wrap"><%= @card.text %></p>
+          </div>
+        <% end %>
+
+        <% if @card.flavorText.present? %>
+          <div>
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Flavor Text</h2>
+            <p class="mt-1 text-gray-600 italic"><%= @card.flavorText %></p>
+          </div>
+        <% end %>
+
+        <div class="grid grid-cols-2 gap-4">
+          <% if @card.power.present? && @card.toughness.present? %>
+            <div>
+              <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">P/T</h2>
+              <p class="mt-1 text-gray-900"><%= @card.power %>/<%= @card.toughness %></p>
+            </div>
+          <% end %>
+
+          <div>
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Rarity</h2>
+            <p class="mt-1"><%= render "sets/rarity_badge", rarity: @card.rarity %></p>
+          </div>
+
+          <div>
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Set</h2>
+            <p class="mt-1 text-gray-900"><%= @card.set&.name || @card.setCode %> (<%= @card.setCode %>)</p>
+          </div>
+
+          <div>
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Number</h2>
+            <p class="mt-1 text-gray-900"><%= @card.number %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
