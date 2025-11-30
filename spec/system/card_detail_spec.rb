@@ -172,7 +172,8 @@ RSpec.describe "Card Detail", type: :system do
     it "displays loyalty" do
       skip "No planeswalker in test data" unless planeswalker
       visit card_path(planeswalker.uuid)
-      expect(page).to have_content("Loyalty")
+      # Label is uppercase due to Tailwind's uppercase class
+      expect(page).to have_content("LOYALTY")
       expect(page).to have_content(planeswalker.loyalty)
     end
   end
