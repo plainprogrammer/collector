@@ -81,7 +81,7 @@ RSpec.describe "Cards", type: :request do
 
   describe "GET /cards/:uuid" do
     context "when card exists" do
-      let(:card) { MTGJSON::Card.first }
+      let(:card) { MTGJSON::Card.includes(:set).first }
 
       it "returns successful response" do
         get card_path(card.uuid)
@@ -91,6 +91,48 @@ RSpec.describe "Cards", type: :request do
       it "displays card name" do
         get card_path(card.uuid)
         expect(response.body).to include(card.name)
+      end
+
+      it "displays card type" do
+        get card_path(card.uuid)
+        expect(response.body).to include(card.type)
+      end
+
+      it "includes set information" do
+        get card_path(card.uuid)
+        expect(response.body).to include(card.set.name) if card.set
+      end
+    end
+
+    context "when card has legalities" do
+      let(:card) { MTGJSON::Card.joins(:legalities).first }
+
+      it "displays legalities section" do
+        get card_path(card.uuid)
+        expect(response.body).to include("Legalities")
+      end
+    end
+
+    context "when card has rulings" do
+      let(:card) { MTGJSON::Card.joins(:rulings).first }
+
+      it "displays rulings section" do
+        get card_path(card.uuid)
+        expect(response.body).to include("Rulings")
+      end
+    end
+
+    context "when card has other printings" do
+      # Find a card with multiple printings
+      let(:card) do
+        card_name = MTGJSON::Card.group(:name).having("COUNT(*) > 1").pluck(:name).first
+        MTGJSON::Card.find_by(name: card_name)
+      end
+
+      it "displays other printings" do
+        skip "No cards with multiple printings in test data" unless card
+        get card_path(card.uuid)
+        expect(response.body).to include("Other Printings")
       end
     end
 
