@@ -143,7 +143,9 @@ RSpec.describe "Card Detail", type: :system do
     it "navigates to set page" do
       skip "Card has no set" unless card.set
       visit card_path(card.uuid)
-      click_link "View Set"
+      link = find_link("View Set")
+      scroll_to(link)
+      link.click
       expect(page).to have_current_path(set_path(card.set.code))
     end
   end
@@ -172,8 +174,8 @@ RSpec.describe "Card Detail", type: :system do
     it "displays loyalty" do
       skip "No planeswalker in test data" unless planeswalker
       visit card_path(planeswalker.uuid)
-      # Label is uppercase due to Tailwind's uppercase class
-      expect(page).to have_content("LOYALTY")
+      # Use CSS selector to find the loyalty label since text-transform varies by browser
+      expect(page).to have_css("dt", text: /loyalty/i)
       expect(page).to have_content(planeswalker.loyalty)
     end
   end
