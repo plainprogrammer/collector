@@ -205,4 +205,114 @@ RSpec.describe "Items", type: :request do
       end
     end
   end
+
+  describe "GET /items/:id" do
+    let!(:item) { create(:item, collection: collection, card_uuid: card.uuid) }
+
+    it "returns successful response" do
+      get item_path(item)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "displays the card name" do
+      get item_path(item)
+      expect(response.body).to include(card.name)
+    end
+
+    it "displays the condition" do
+      get item_path(item)
+      expect(response.body).to include("Near mint")
+    end
+
+    it "shows edit and delete buttons" do
+      get item_path(item)
+      expect(response.body).to include("Edit Item")
+      expect(response.body).to include("Delete")
+    end
+  end
+
+  describe "GET /items/:id/edit" do
+    let!(:item) { create(:item, collection: collection, card_uuid: card.uuid) }
+
+    it "returns successful response" do
+      get edit_item_path(item)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "displays the card name" do
+      get edit_item_path(item)
+      expect(response.body).to include(card.name)
+    end
+
+    it "displays current condition" do
+      get edit_item_path(item)
+      expect(response.body).to include("near_mint")
+    end
+  end
+
+  describe "PATCH /items/:id" do
+    let!(:item) { create(:item, collection: collection, card_uuid: card.uuid, condition: :near_mint) }
+
+    context "with valid parameters" do
+      it "updates the item" do
+        patch item_path(item), params: { item: { condition: "lightly_played" } }
+        expect(item.reload.condition).to eq("lightly_played")
+      end
+
+      it "redirects to item show page" do
+        patch item_path(item), params: { item: { condition: "lightly_played" } }
+        expect(response).to redirect_to(item_path(item))
+      end
+
+      it "shows success message" do
+        patch item_path(item), params: { item: { condition: "lightly_played" } }
+        expect(flash[:notice]).to include("updated")
+      end
+    end
+
+    context "with all editable fields" do
+      let(:storage_unit) { create(:storage_unit, collection: collection) }
+
+      it "updates all attributes" do
+        patch item_path(item), params: {
+          item: {
+            storage_unit_id: storage_unit.id,
+            condition: "moderately_played",
+            finish: "traditional_foil",
+            language: "de",
+            signed: true,
+            altered: true,
+            misprint: false,
+            grading_service: "PSA",
+            grading_score: "9.5",
+            acquisition_date: "2024-03-15",
+            acquisition_price: "150.00",
+            notes: "Trade at GP"
+          }
+        }
+
+        item.reload
+        expect(item.storage_unit).to eq(storage_unit)
+        expect(item.condition).to eq("moderately_played")
+        expect(item.finish).to eq("traditional_foil")
+        expect(item.language).to eq("de")
+        expect(item.signed).to be true
+        expect(item.altered).to be true
+        expect(item.grading_service).to eq("PSA")
+        expect(item.grading_score.to_f).to eq(9.5)
+      end
+    end
+
+    context "with invalid parameters" do
+      it "does not update with invalid language" do
+        patch item_path(item), params: { item: { language: "invalid" } }
+        expect(item.reload.language).to eq("en")
+      end
+
+      it "re-renders edit form" do
+        patch item_path(item), params: { item: { language: "invalid" } }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
 end
