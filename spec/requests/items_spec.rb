@@ -376,4 +376,54 @@ RSpec.describe "Items", type: :request do
       end
     end
   end
+
+  describe "DELETE /items/:id" do
+    let!(:item) { create(:item, collection: collection, card_uuid: card.uuid) }
+
+    it "deletes the item" do
+      expect {
+        delete item_path(item)
+      }.to change(Item, :count).by(-1)
+    end
+
+    it "redirects to collection items" do
+      delete item_path(item)
+      expect(response).to redirect_to(collection_items_path(collection))
+    end
+
+    it "shows success message" do
+      delete item_path(item)
+      follow_redirect!
+      expect(response.body).to include("removed")
+    end
+
+    it "includes card name in success message" do
+      delete item_path(item)
+      expect(flash[:notice]).to include(card.name)
+    end
+
+    context "when item has storage unit" do
+      let(:storage_unit) { create(:storage_unit, collection: collection) }
+      let!(:item) { create(:item, collection: collection, storage_unit: storage_unit, card_uuid: card.uuid) }
+
+      it "does not delete the storage unit" do
+        expect {
+          delete item_path(item)
+        }.not_to change(StorageUnit, :count)
+      end
+
+      it "deletes the item" do
+        expect {
+          delete item_path(item)
+        }.to change(Item, :count).by(-1)
+      end
+    end
+
+    context "when item does not exist" do
+      it "returns not found" do
+        delete item_path(id: 99999)
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
 end
