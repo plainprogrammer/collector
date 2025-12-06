@@ -2,7 +2,7 @@ class ItemsController < ApplicationController
   include Pagy::Method
 
   before_action :set_collection, only: [ :index, :new, :create ]
-  before_action :set_item, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_item, only: [ :show, :edit, :update, :destroy, :move, :relocate ]
   before_action :set_card, only: [ :new, :create ]
 
   def index
@@ -64,6 +64,31 @@ class ItemsController < ApplicationController
                 notice: "#{card_name} removed from collection"
   end
 
+  def move
+    @card = @item.card
+    @collections = Collection.order(:name)
+    @storage_units = @item.collection.storage_units.order(:name)
+  end
+
+  def relocate
+    new_collection = Collection.find(relocate_params[:collection_id])
+    new_storage_unit = nil
+
+    if relocate_params[:storage_unit_id].present?
+      new_storage_unit = new_collection.storage_units.find(relocate_params[:storage_unit_id])
+    end
+
+    @item.move_to_collection!(new_collection, new_storage_unit: new_storage_unit)
+
+    redirect_to @item, notice: "Item moved to #{new_collection.name}"
+  rescue ActiveRecord::RecordInvalid => e
+    @card = @item.card
+    @collections = Collection.order(:name)
+    @storage_units = @item.collection.storage_units.order(:name)
+    flash.now[:alert] = e.record.errors.full_messages.to_sentence
+    render :move, status: :unprocessable_entity
+  end
+
   private
 
   def set_collection
@@ -96,6 +121,10 @@ class ItemsController < ApplicationController
       :grading_score,
       :notes
     )
+  end
+
+  def relocate_params
+    params.require(:item).permit(:collection_id, :storage_unit_id)
   end
 
   def load_cards_for_items(items)

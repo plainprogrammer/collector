@@ -315,4 +315,65 @@ RSpec.describe "Items", type: :request do
       end
     end
   end
+
+  describe "GET /items/:id/move" do
+    let!(:item) { create(:item, collection: collection, card_uuid: card.uuid) }
+    let!(:other_collection) { create(:collection, name: "Other Collection") }
+
+    it "returns successful response" do
+      get move_item_path(item)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "displays the move form" do
+      get move_item_path(item)
+      expect(response.body).to include("Move Item")
+      expect(response.body).to include("New Location")
+    end
+
+    it "lists available collections" do
+      get move_item_path(item)
+      expect(response.body).to include(collection.name)
+      expect(response.body).to include("Other Collection")
+    end
+  end
+
+  describe "PATCH /items/:id/relocate" do
+    let!(:item) { create(:item, collection: collection, card_uuid: card.uuid) }
+    let!(:other_collection) { create(:collection, name: "Other Collection") }
+    let!(:other_storage) { create(:storage_unit, collection: other_collection, name: "New Box") }
+
+    context "moving to same collection" do
+      let!(:storage_unit) { create(:storage_unit, collection: collection, name: "Box A") }
+
+      it "updates storage unit" do
+        patch relocate_item_path(item), params: { item: { collection_id: collection.id, storage_unit_id: storage_unit.id } }
+        expect(item.reload.storage_unit).to eq(storage_unit)
+      end
+    end
+
+    context "moving to different collection" do
+      it "moves item to new collection" do
+        patch relocate_item_path(item), params: { item: { collection_id: other_collection.id } }
+        expect(item.reload.collection).to eq(other_collection)
+      end
+
+      it "clears storage unit when moving collection" do
+        item.update!(storage_unit: create(:storage_unit, collection: collection))
+        patch relocate_item_path(item), params: { item: { collection_id: other_collection.id } }
+        expect(item.reload.storage_unit).to be_nil
+      end
+
+      it "can assign storage unit from new collection" do
+        patch relocate_item_path(item), params: { item: { collection_id: other_collection.id, storage_unit_id: other_storage.id } }
+        expect(item.reload.storage_unit).to eq(other_storage)
+      end
+
+      it "redirects to item with success message" do
+        patch relocate_item_path(item), params: { item: { collection_id: other_collection.id } }
+        expect(response).to redirect_to(item_path(item))
+        expect(flash[:notice]).to include("moved")
+      end
+    end
+  end
 end

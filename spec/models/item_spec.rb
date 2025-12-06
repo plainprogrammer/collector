@@ -328,4 +328,88 @@ RSpec.describe Item, type: :model do
       expect(item.notes).to eq("Bought at local game store")
     end
   end
+
+  describe "storage_unit_belongs_to_collection validation" do
+    let(:other_collection) { Collection.create!(name: "Other Collection") }
+    let(:storage_unit) { StorageUnit.create!(name: "Box A", collection: collection, storage_unit_type: :box) }
+    let(:other_storage_unit) { StorageUnit.create!(name: "Box B", collection: other_collection, storage_unit_type: :box) }
+
+    it "allows items without a storage unit" do
+      item = Item.new(
+        collection: collection,
+        card_uuid: "test-uuid",
+        condition: :near_mint,
+        finish: :nonfoil,
+        language: "en",
+        storage_unit: nil
+      )
+      expect(item).to be_valid
+    end
+
+    it "allows items with a storage unit from the same collection" do
+      item = Item.new(
+        collection: collection,
+        card_uuid: "test-uuid",
+        condition: :near_mint,
+        finish: :nonfoil,
+        language: "en",
+        storage_unit: storage_unit
+      )
+      expect(item).to be_valid
+    end
+
+    it "rejects items with a storage unit from a different collection" do
+      item = Item.new(
+        collection: collection,
+        card_uuid: "test-uuid",
+        condition: :near_mint,
+        finish: :nonfoil,
+        language: "en",
+        storage_unit: other_storage_unit
+      )
+      expect(item).not_to be_valid
+      expect(item.errors[:storage_unit]).to include("must belong to the same collection as the item")
+    end
+  end
+
+  describe "#move_to_collection!" do
+    let(:other_collection) { Collection.create!(name: "Other Collection") }
+    let(:storage_unit) { StorageUnit.create!(name: "Box A", collection: collection, storage_unit_type: :box) }
+    let(:other_storage_unit) { StorageUnit.create!(name: "Box B", collection: other_collection, storage_unit_type: :box) }
+    let(:item) do
+      Item.create!(
+        collection: collection,
+        storage_unit: storage_unit,
+        card_uuid: "test-uuid",
+        condition: :near_mint,
+        finish: :nonfoil,
+        language: "en"
+      )
+    end
+
+    it "moves item to a new collection" do
+      item.move_to_collection!(other_collection)
+
+      expect(item.collection).to eq(other_collection)
+    end
+
+    it "clears storage unit when moving to a new collection" do
+      item.move_to_collection!(other_collection)
+
+      expect(item.storage_unit).to be_nil
+    end
+
+    it "can assign a new storage unit from the new collection" do
+      item.move_to_collection!(other_collection, new_storage_unit: other_storage_unit)
+
+      expect(item.collection).to eq(other_collection)
+      expect(item.storage_unit).to eq(other_storage_unit)
+    end
+
+    it "raises error if new storage unit belongs to wrong collection" do
+      expect {
+        item.move_to_collection!(collection, new_storage_unit: other_storage_unit)
+      }.to raise_error(ActiveRecord::RecordInvalid)
+    end
+  end
 end
