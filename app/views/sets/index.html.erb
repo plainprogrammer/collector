@@ -1,0 +1,57 @@
+<% content_for :title, "Sets" %>
+
+<section class="w-full" aria-labelledby="sets-heading">
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h1 id="sets-heading" class="text-3xl font-bold text-gray-900">Sets</h1>
+      <p class="mt-1 text-gray-600">Browse Magic: The Gathering sets</p>
+    </div>
+
+    <%= form_with url: sets_path, method: :get, local: true, class: "flex items-center gap-2", data: { turbo_action: "replace" } do %>
+      <label for="type" class="sr-only">Filter by set type</label>
+      <select name="type" id="type"
+              class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm"
+              onchange="this.form.requestSubmit()">
+        <option value="">All Types</option>
+        <% @set_types.each do |set_type| %>
+          <option value="<%= set_type %>" <%= "selected" if params[:type] == set_type %>>
+            <%= set_type.titleize %>
+          </option>
+        <% end %>
+      </select>
+      <noscript>
+        <button type="submit" class="px-3 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200">
+          Filter
+        </button>
+      </noscript>
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "flash" do %>
+    <%= render "shared/flash" %>
+  <% end %>
+
+  <div id="sets" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <% if @sets.any? %>
+      <%= render partial: "set", collection: @sets %>
+    <% else %>
+      <div class="col-span-full text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <h3 class="mt-2 text-sm font-semibold text-gray-900">No sets available</h3>
+        <% if params[:type].present? %>
+          <p class="mt-1 text-sm text-gray-500">No sets match your filter. Try selecting a different type.</p>
+        <% else %>
+          <p class="mt-1 text-sm text-gray-500">The MTGJSON database may not be loaded.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @sets.any? && @pagy.last > 1 %>
+    <nav class="mt-8" aria-label="Pagination">
+      <%== @pagy.series_nav %>
+    </nav>
+  <% end %>
+</section>

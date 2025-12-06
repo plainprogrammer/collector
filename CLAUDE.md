@@ -17,14 +17,19 @@ Collector is a Rails 8.1 application for managing Magic: The Gathering card coll
 **REQUIRED before every commit:**
 
 ```bash
-# 1. Run RuboCop linter and auto-fix issues
-bin/rubocop --fix
-
-# 2. Run all tests
-bin/rspec
+# Run all CI checks locally (linting, security scans, tests)
+bin/ci
 ```
 
-Both commands must pass before committing changes. This ensures code quality and prevents CI failures.
+This single command runs the complete CI pipeline locally:
+1. Setup verification
+2. RuboCop linting
+3. Security scans (bundler-audit, importmap audit, Brakeman)
+4. Full test suite (RSpec)
+
+All checks must pass before committing. This ensures code quality, security, and prevents CI failures.
+
+**Tip**: If you need to auto-fix linting issues first, run `bin/rubocop --fix` before `bin/ci`.
 
 ### Testing
 
@@ -191,12 +196,15 @@ end
 
 ### Before Committing
 
-**Both of these commands are REQUIRED before every commit:**
+**REQUIRED before every commit:**
 
-1. **Run linter**: `bin/rubocop --fix`
-2. **Run tests**: `bin/rspec`
+```bash
+bin/ci
+```
 
-Only commit after both commands pass successfully. This workflow ensures code quality and prevents CI failures.
+This runs all CI checks locally: setup, linting, security scans, and tests. Only commit after `bin/ci` passes successfully.
+
+**Tip**: Run `bin/rubocop --fix` first to auto-fix any linting issues, then run `bin/ci` to verify everything passes.
 
 ### Testing MTGJSON Models
 
@@ -316,7 +324,7 @@ This project follows **Rails Omakase Ruby style** via `rubocop-rails-omakase`. K
 
 - Standard Ruby formatting and naming conventions
 - Rails-specific best practices
-- Run `bin/rubocop --fix` before committing (non-negotiable)
+- Run `bin/ci` before committing to verify all checks pass
 
 Configuration: `.rubocop.yml` inherits from `rubocop-rails-omakase`
 

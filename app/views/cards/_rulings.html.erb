@@ -1,0 +1,14 @@
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">Rulings</h2>
+
+  <div class="space-y-4" data-testid="rulings-section">
+    <% rulings.order(date: :desc).each do |ruling| %>
+      <div data-testid="ruling-item" class="border-l-2 border-indigo-200 pl-4">
+        <time datetime="<%= ruling.date %>" class="text-xs font-medium text-gray-500">
+          <%= ruling.date %>
+        </time>
+        <p class="mt-1 text-sm text-gray-700"><%= ruling.text %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

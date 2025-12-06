@@ -1,0 +1,28 @@
+<% if legalities.present? %>
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Legalities</h2>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="legalities-section">
+      <%
+        formats = [
+          { name: "Standard", key: :standard },
+          { name: "Pioneer", key: :pioneer },
+          { name: "Modern", key: :modern },
+          { name: "Legacy", key: :legacy },
+          { name: "Vintage", key: :vintage },
+          { name: "Commander", key: :commander },
+          { name: "Pauper", key: :pauper },
+          { name: "Brawl", key: :brawl }
+        ]
+      %>
+
+      <% formats.each do |format| %>
+        <% status = legalities.send(format[:key]) rescue nil %>
+        <div data-testid="legality-item" class="flex flex-col items-center p-2 rounded-lg bg-gray-50">
+          <span class="text-xs font-medium text-gray-600 mb-1"><%= format[:name] %></span>
+          <%= legality_badge(status) %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

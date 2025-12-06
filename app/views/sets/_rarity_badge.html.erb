@@ -1,0 +1,19 @@
+<%
+  badge_classes = case rarity&.downcase
+  when "common"
+    "bg-gray-100 text-gray-800"
+  when "uncommon"
+    "bg-slate-200 text-slate-800"
+  when "rare"
+    "bg-amber-100 text-amber-800"
+  when "mythic"
+    "bg-orange-100 text-orange-800"
+  when "special"
+    "bg-purple-100 text-purple-800"
+  else
+    "bg-gray-100 text-gray-600"
+  end
+%>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= badge_classes %>">
+  <%= rarity&.capitalize || "Unknown" %>
+</span>

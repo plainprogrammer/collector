@@ -213,10 +213,9 @@ resources :cards, only: [:index, :show], param: :uuid
 class CardsController < ApplicationController
   def index
     if search_params_present?
-      @cards = search_cards
-      @result_count = @cards.total_count
+      @pagy, @cards = search_cards
     else
-      @cards = MTGJSON::Card.none.page(1)
+      @cards = MTGJSON::Card.none
       @show_prompt = true
     end
   end
@@ -233,16 +232,10 @@ class CardsController < ApplicationController
 
   def search_cards
     cards = MTGJSON::Card.includes(:set)
+    cards = cards.by_name(params[:name]) if params[:name].present?
+    cards = cards.by_set(params[:set_code].upcase) if params[:set_code].present?
 
-    if params[:name].present?
-      cards = cards.by_name(params[:name])
-    end
-
-    if params[:set_code].present?
-      cards = cards.by_set(params[:set_code].upcase)
-    end
-
-    cards.order(:name, :setCode).page(params[:page]).per(50)
+    pagy(cards.order(:name, :setCode), limit: 50)
   end
 end
 ```
@@ -723,7 +716,7 @@ Add "Cards" link to main navigation:
 ## Dependencies
 
 - **Phase 1.1**: Shares card display patterns and navigation structure
-- **Kaminari gem**: For pagination (added in Phase 1.1)
+- **Pagy gem**: For pagination (added in Phase 1.1)
 - **MTGJSON database**: Must be available
 
 ---

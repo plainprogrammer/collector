@@ -69,9 +69,7 @@ RSpec.describe "Collection Management", type: :system do
       click_button "Create Collection"
 
       # Navigate back to index using the nav link
-      within("nav[aria-label='Main navigation']") do
-        click_link "Collections"
-      end
+      click_link("Collections", match: :first)
 
       expect(page).to have_content("Trade Binder")
     end
