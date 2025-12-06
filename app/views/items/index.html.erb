@@ -35,9 +35,11 @@
       <% end %>
     </div>
 
-    <nav class="mt-8" aria-label="Items pagination">
-      <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
-    </nav>
+    <% if @pagy.last > 1 %>
+      <nav class="mt-8 flex justify-center" aria-label="Items pagination">
+        <%== @pagy.series_nav %>
+      </nav>
+    <% end %>
   <% else %>
     <%= render "empty_state", collection: @collection %>
   <% end %>

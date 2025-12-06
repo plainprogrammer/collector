@@ -1,0 +1,201 @@
+<% content_for :title, @card&.name || "Item Details" %>
+
+<article class="w-full">
+  <nav class="mb-6 flex gap-4">
+    <%= link_to collection_items_path(@item.collection), class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Items
+    <% end %>
+  </nav>
+
+  <%= turbo_frame_tag "flash" do %>
+    <%= render "shared/flash" %>
+  <% end %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <aside class="lg:col-span-1">
+      <% if @card %>
+        <%= card_image_tag(@card, size: :normal, class: "w-full rounded-lg shadow-lg") %>
+      <% else %>
+        <div class="aspect-[5/7] bg-gray-100 rounded-lg flex items-center justify-center">
+          <span class="text-gray-400">Image not available</span>
+        </div>
+      <% end %>
+    </aside>
+
+    <section class="lg:col-span-2 space-y-6">
+      <header>
+        <h1 class="text-3xl font-bold text-gray-900"><%= @card&.name || "Unknown Card" %></h1>
+        <% if @card&.set %>
+          <p class="mt-1 text-lg text-gray-600">
+            <%= link_to set_path(@card.setCode), class: "text-indigo-600 hover:text-indigo-800" do %>
+              <%= @card.set.name %> (<%= @card.setCode %>)
+            <% end %>
+          </p>
+        <% end %>
+      </header>
+
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Item Details</h2>
+
+        <dl class="grid grid-cols-2 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Condition</dt>
+            <dd class="mt-1">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded text-sm font-medium <%= condition_badge_class(@item.condition) %>">
+                <%= condition_display_name(@item.condition) %>
+              </span>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Finish</dt>
+            <dd class="mt-1">
+              <% if foil?(@item) %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-sm font-medium <%= finish_badge_class(@item.finish) %>">
+                  <%= @item.finish.humanize.titleize %>
+                </span>
+              <% else %>
+                <span class="text-gray-900"><%= @item.finish.humanize.titleize %></span>
+              <% end %>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Language</dt>
+            <dd class="mt-1 text-gray-900"><%= language_name(@item.language) %></dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Storage Location</dt>
+            <dd class="mt-1 text-gray-900">
+              <% if @item.storage_unit %>
+                <%= @item.storage_unit.name %>
+              <% else %>
+                <span class="text-gray-500">Loose</span>
+              <% end %>
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Collection</dt>
+            <dd class="mt-1">
+              <%= link_to @item.collection.name, @item.collection, class: "text-indigo-600 hover:text-indigo-800" %>
+            </dd>
+          </div>
+
+          <% if @item.grading_service.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Grading</dt>
+              <dd class="mt-1 text-gray-900"><%= @item.grading_service %> <%= @item.grading_score %></dd>
+            </div>
+          <% end %>
+        </dl>
+
+        <% if special_attributes(@item).any? %>
+          <div class="mt-4 pt-4 border-t border-gray-100">
+            <dt class="text-sm font-medium text-gray-500 mb-2">Special Attributes</dt>
+            <dd class="flex flex-wrap gap-2">
+              <% special_attributes(@item).each do |attr| %>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-sm font-medium bg-purple-100 text-purple-800">
+                  <%= attr %>
+                </span>
+              <% end %>
+            </dd>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @item.acquisition_date.present? || @item.acquisition_price.present? || @item.notes.present? %>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Acquisition Info</h2>
+
+          <dl class="space-y-3">
+            <% if @item.acquisition_date.present? %>
+              <div class="flex gap-2">
+                <dt class="text-sm font-medium text-gray-500 w-24">Date:</dt>
+                <dd class="text-gray-900"><%= @item.acquisition_date.strftime("%B %-d, %Y") %></dd>
+              </div>
+            <% end %>
+
+            <% if @item.acquisition_price.present? %>
+              <div class="flex gap-2">
+                <dt class="text-sm font-medium text-gray-500 w-24">Price:</dt>
+                <dd class="text-gray-900"><%= number_to_currency(@item.acquisition_price) %></dd>
+              </div>
+            <% end %>
+
+            <% if @item.notes.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500 mb-1">Notes:</dt>
+                <dd class="text-gray-900 whitespace-pre-wrap"><%= @item.notes %></dd>
+              </div>
+            <% end %>
+          </dl>
+        </div>
+      <% end %>
+
+      <% if @card %>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 class="text-lg font-semibold text-gray-900 mb-4">Card Information</h2>
+
+          <dl class="space-y-3">
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Type</dt>
+              <dd class="mt-1 text-gray-900"><%= @card.type %></dd>
+            </div>
+
+            <% if @card.text.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Rules Text</dt>
+                <dd class="mt-1 text-gray-900 whitespace-pre-wrap"><%= @card.text %></dd>
+              </div>
+            <% end %>
+
+            <% if @card.manaCost.present? %>
+              <div>
+                <dt class="text-sm font-medium text-gray-500">Mana Cost</dt>
+                <dd class="mt-1"><%= format_mana_cost(@card.manaCost) %></dd>
+              </div>
+            <% end %>
+          </dl>
+
+          <div class="mt-4 pt-4 border-t border-gray-100">
+            <%= link_to card_path(@card.uuid), class: "text-indigo-600 hover:text-indigo-800 text-sm font-medium" do %>
+              View Full Card Details
+              <svg class="inline w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <footer class="flex flex-wrap gap-3">
+        <%= link_to edit_item_path(@item),
+            class: "inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          Edit Item
+        <% end %>
+
+        <%= button_to item_path(@item),
+            method: :delete,
+            class: "inline-flex items-center gap-2 px-4 py-2 text-red-600 border border-red-300 font-medium rounded-lg hover:bg-red-50 transition-colors",
+            form: {
+              data: {
+                turbo_confirm: "Are you sure you want to delete this #{@card&.name || 'item'}? This action cannot be undone."
+              }
+            } do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+          Delete
+        <% end %>
+      </footer>
+    </section>
+  </div>
+</article>

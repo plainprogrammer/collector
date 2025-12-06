@@ -4,6 +4,70 @@ RSpec.describe "Items", type: :request do
   let(:collection) { create(:collection) }
   let(:card) { MTGJSON::Card.first }
 
+  describe "GET /collections/:collection_id/items" do
+    context "with items" do
+      before do
+        5.times { create(:item, collection: collection, card_uuid: card.uuid) }
+      end
+
+      it "returns successful response" do
+        get collection_items_path(collection)
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "displays item count" do
+        get collection_items_path(collection)
+        expect(response.body).to include("5 items")
+      end
+
+      it "displays card names" do
+        get collection_items_path(collection)
+        expect(response.body).to include(card.name)
+      end
+    end
+
+    context "with empty collection" do
+      it "shows empty state" do
+        get collection_items_path(collection)
+        expect(response.body).to include("No items")
+      end
+
+      it "shows link to add cards" do
+        get collection_items_path(collection)
+        expect(response.body).to include("Add Card")
+      end
+    end
+
+    context "with special items" do
+      it "shows foil badge" do
+        create(:item, collection: collection, card_uuid: card.uuid, finish: :traditional_foil)
+        get collection_items_path(collection)
+        expect(response.body).to include("Traditional")
+      end
+
+      it "shows signed badge" do
+        create(:item, collection: collection, card_uuid: card.uuid, signed: true)
+        get collection_items_path(collection)
+        expect(response.body).to include("Signed")
+      end
+
+      it "shows language badge for non-English items" do
+        create(:item, collection: collection, card_uuid: card.uuid, language: "ja")
+        get collection_items_path(collection)
+        expect(response.body).to include("JA")
+      end
+    end
+
+    context "with storage unit" do
+      it "shows storage unit name" do
+        storage_unit = create(:storage_unit, collection: collection, name: "Box A")
+        create(:item, collection: collection, card_uuid: card.uuid, storage_unit: storage_unit)
+        get collection_items_path(collection)
+        expect(response.body).to include("Box A")
+      end
+    end
+  end
+
   describe "GET /collections/:collection_id/items/new" do
     context "with valid card_uuid" do
       it "returns successful response" do
