@@ -143,9 +143,8 @@ RSpec.describe "Card Detail", type: :system do
     it "navigates to set page" do
       skip "Card has no set" unless card.set
       visit card_path(card.uuid)
-      link = find_link("View Set")
-      scroll_to(link)
-      link.click
+      # Use JavaScript click to avoid sticky header overlap issues in CI
+      find_link("View Set").execute_script("this.click()")
       expect(page).to have_current_path(set_path(card.set.code))
     end
   end
