@@ -238,18 +238,16 @@ Configure Pagy in an initializer and include in ApplicationController:
 
 ```ruby
 # config/initializers/pagy.rb
-require "pagy/extras/overflow"
-Pagy::DEFAULT[:overflow] = :last_page
-Pagy::DEFAULT[:limit] = 24
+Pagy.options[:limit] = 24
 
 # app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
-  include Pagy::Backend
+  include Pagy::Method
 end
 
 # app/helpers/application_helper.rb
 module ApplicationHelper
-  include Pagy::Frontend
+  include Pagy::Loader
 end
 ```
 
