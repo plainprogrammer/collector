@@ -6,6 +6,10 @@ Rails.application.routes.draw do
     resources :storage_units, shallow: true
   end
 
+  # MTGJSON browsing (Phase 1: Card Discovery)
+  resources :sets, only: [ :index, :show ], param: :code
+  resources :cards, only: [ :index, :show ], param: :uuid
+
   # Root route
   root "collections#index"
 

@@ -1,0 +1,18 @@
+<div class="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6" data-testid="other-printings">
+  <h2 class="text-lg font-semibold text-gray-900 mb-4">
+    Other Printings
+    <span class="text-sm font-normal text-gray-500">(<%= printings.count %><%= printings.count >= 20 ? "+" : "" %>)</span>
+  </h2>
+
+  <div class="flex flex-wrap gap-2">
+    <% printings.each do |printing| %>
+      <%= link_to card_path(printing.uuid),
+          class: "inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm bg-gray-100 text-gray-700 hover:bg-indigo-100 hover:text-indigo-700 transition-colors" do %>
+        <span class="font-medium"><%= printing.setCode %></span>
+        <% if printing.set %>
+          <span class="text-gray-500 truncate max-w-32"><%= printing.set.name %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

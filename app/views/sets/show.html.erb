@@ -1,0 +1,87 @@
+<% content_for :title, @set.name %>
+
+<section class="w-full" aria-labelledby="set-heading">
+  <nav class="mb-6">
+    <%= link_to sets_path, class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Sets
+    <% end %>
+  </nav>
+
+  <%= turbo_frame_tag "flash" do %>
+    <%= render "shared/flash" %>
+  <% end %>
+
+  <header class="mb-8">
+    <h1 id="set-heading" class="text-3xl font-bold text-gray-900"><%= @set.name %></h1>
+    <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-600">
+      <span class="inline-flex items-center gap-1">
+        <span class="font-medium">Code:</span>
+        <code class="px-1.5 py-0.5 bg-gray-100 rounded text-gray-800"><%= @set.code %></code>
+      </span>
+      <span class="inline-flex items-center gap-1">
+        <span class="font-medium">Type:</span>
+        <%= @set.type&.titleize || "Unknown" %>
+      </span>
+      <span class="inline-flex items-center gap-1">
+        <span class="font-medium">Released:</span>
+        <time datetime="<%= @set.releaseDate %>"><%= @set.releaseDate %></time>
+      </span>
+      <span class="inline-flex items-center gap-1">
+        <span class="font-medium">Cards:</span>
+        <%= @set.cards.size %>
+      </span>
+    </div>
+  </header>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+    <header class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <h2 class="text-lg font-semibold text-gray-900">Cards in this set</h2>
+    </header>
+
+    <% if @cards.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rarity</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @cards.each do |card| %>
+              <tr data-testid="card-row" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= card.number %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= link_to card.name, card_path(card.uuid), class: "text-sm font-medium text-indigo-600 hover:text-indigo-800" %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= card.type&.truncate(40) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= render "sets/rarity_badge", rarity: card.rarity %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @pagy.last > 1 %>
+        <nav class="px-6 py-4 border-t border-gray-200" aria-label="Pagination">
+          <%== @pagy.series_nav %>
+        </nav>
+      <% end %>
+    <% else %>
+      <div class="px-6 py-12 text-center">
+        <p class="text-gray-500">No cards in this set.</p>
+      </div>
+    <% end %>
+  </div>
+</section>

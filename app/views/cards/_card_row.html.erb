@@ -1,0 +1,21 @@
+<tr data-testid="card-row" class="hover:bg-gray-50">
+  <td class="px-6 py-4 whitespace-nowrap">
+    <%= link_to card.name, card_path(card.uuid), class: "text-sm font-medium text-indigo-600 hover:text-indigo-800" %>
+  </td>
+  <td class="px-6 py-4 text-sm text-gray-500">
+    <%= card.type&.truncate(35) %>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+    <%= card.manaCost %>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <% if card.set %>
+      <%= link_to card.setCode, set_path(card.setCode), class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+    <% else %>
+      <span class="text-sm text-gray-500"><%= card.setCode %></span>
+    <% end %>
+  </td>
+  <td class="px-6 py-4 whitespace-nowrap">
+    <%= render "sets/rarity_badge", rarity: card.rarity %>
+  </td>
+</tr>

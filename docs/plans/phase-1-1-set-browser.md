@@ -79,18 +79,21 @@ Feature: Set Type Filtering
     Given the MTGJSON database contains sets of various types
     When I visit the sets index page
     And I select "expansion" from the type filter
-    Then I should only see sets with type "expansion"
+    Then the page should auto-submit via Turbo
+    And I should only see sets with type "expansion"
     And the filter should remain selected
 
   Scenario: Filter by core sets
     Given the MTGJSON database contains sets of various types
     When I select "core" from the type filter
-    Then I should only see sets with type "core"
+    Then the page should auto-submit via Turbo
+    And I should only see sets with type "core"
 
   Scenario: Clear filter
     Given I have filtered sets by type "expansion"
     When I select "All Types" from the type filter
-    Then I should see sets of all types
+    Then the page should auto-submit via Turbo
+    And I should see sets of all types
 
   Scenario: Filter with no results
     Given the database has no "funny" type sets
@@ -206,17 +209,16 @@ resources :sets, only: [:index, :show], param: :code
 # app/controllers/sets_controller.rb
 class SetsController < ApplicationController
   def index
-    @sets = MTGJSON::Set.released
-                        .order(releaseDate: :desc)
-    @sets = @sets.by_type(params[:type]) if params[:type].present?
-    @sets = @sets.page(params[:page]).per(24)
+    sets = MTGJSON::Set.released.order(releaseDate: :desc)
+    sets = sets.by_type(params[:type]) if params[:type].present?
+    @pagy, @sets = pagy(sets, limit: 24)
 
     @set_types = MTGJSON::Set.distinct.pluck(:type).compact.sort
   end
 
   def show
     @set = MTGJSON::Set.find_by!(code: params[:code])
-    @cards = @set.cards.order(:number, :name).page(params[:page]).per(50)
+    @pagy, @cards = pagy(@set.cards.order(:number, :name), limit: 50)
   rescue ActiveRecord::RecordNotFound
     redirect_to sets_path, alert: "Set not found"
   end
@@ -225,11 +227,28 @@ end
 
 ### Pagination
 
-Add `kaminari` gem for pagination:
+Add `pagy` gem for pagination:
 
 ```ruby
 # Gemfile
-gem "kaminari"
+gem "pagy"
+```
+
+Configure Pagy in an initializer and include in ApplicationController:
+
+```ruby
+# config/initializers/pagy.rb
+Pagy.options[:limit] = 24
+
+# app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  include Pagy::Method
+end
+
+# app/helpers/application_helper.rb
+module ApplicationHelper
+  include Pagy::Loader
+end
 ```
 
 ### Views
@@ -368,11 +387,11 @@ RSpec.describe "Set Browser", type: :system do
       end
     end
 
-    it "filters sets by type" do
+    it "filters sets by type via auto-submit" do
       visit sets_path
 
       select "expansion", from: "type"
-      click_button "Filter"
+      # Auto-submits on change via Turbo
 
       expect(page).to have_current_path(/type=expansion/)
     end
@@ -519,7 +538,7 @@ end
 
 ## Dependencies
 
-- **Kaminari gem**: For pagination
+- **Pagy gem**: For pagination (lightweight, fast)
 - **MTGJSON database**: Must be set up (`bin/rails mtgjson:setup_test` for tests)
 
 ---
@@ -530,7 +549,7 @@ end
 - [ ] Routes configured for `/sets` and `/sets/:code`
 - [ ] Sets index page displays all released sets
 - [ ] Sets sorted by release date (newest first)
-- [ ] Type filter dropdown filters sets
+- [ ] Type filter dropdown auto-submits on change via Turbo
 - [ ] Pagination works on sets index (24 per page)
 - [ ] Set detail page shows set metadata
 - [ ] Set detail page lists all cards in set

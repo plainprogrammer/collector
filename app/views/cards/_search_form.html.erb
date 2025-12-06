@@ -1,0 +1,27 @@
+<%= form_with url: cards_path, method: :get, local: true,
+    class: "flex flex-col sm:flex-row gap-4",
+    data: { turbo_action: "replace" } do |f| %>
+
+  <div class="flex-grow min-w-0">
+    <%= f.label :name, "Card Name", class: "sr-only" %>
+    <%= f.text_field :name,
+        value: params[:name],
+        placeholder: "Search by card name...",
+        class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+        autofocus: true,
+        id: "card-name-search" %>
+  </div>
+
+  <div class="sm:w-32 flex-shrink-0">
+    <%= f.label :set_code, "Set Code", class: "sr-only" %>
+    <%= f.text_field :set_code,
+        value: params[:set_code],
+        placeholder: "Set code",
+        maxlength: 10,
+        class: "w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 uppercase",
+        id: "card-set-code-search" %>
+  </div>
+
+  <%= f.submit "Search",
+      class: "flex-shrink-0 px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors cursor-pointer" %>
+<% end %>
