@@ -1,12 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Card Search", type: :system do
-  before do
-    driven_by(:selenium_headless)
-    # Resize window to show desktop navigation
-    page.driver.browser.manage.window.resize_to(1024, 768)
-  end
-
   describe "search page" do
     it "displays search form" do
       visit cards_path

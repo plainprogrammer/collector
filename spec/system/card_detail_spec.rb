@@ -1,11 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Card Detail", type: :system do
-  before do
-    driven_by(:selenium_headless)
-    page.driver.browser.manage.window.resize_to(1024, 768)
-  end
-
   let(:card) { MTGJSON::Card.includes(:set).first }
 
   describe "viewing card details" do
@@ -143,8 +138,9 @@ RSpec.describe "Card Detail", type: :system do
     it "navigates to set page" do
       skip "Card has no set" unless card.set
       visit card_path(card.uuid)
-      # Use JavaScript click to avoid sticky header overlap issues in CI
-      find_link("View Set").execute_script("this.click()")
+      link = find_link("View Set")
+      scroll_to(link)
+      link.click
       expect(page).to have_current_path(set_path(card.set.code))
     end
   end

@@ -1,10 +1,6 @@
 require "rails_helper"
 
 RSpec.describe "Set Browser", type: :system do
-  before do
-    driven_by(:selenium_headless)
-  end
-
   describe "viewing sets index" do
     it "displays list of sets" do
       visit sets_path
