@@ -43,6 +43,15 @@
             </svg>
             <dd><%= pluralize(@collection.storage_units.count, "storage unit") %></dd>
           </div>
+          <% if @collection.loose_items_count > 0 %>
+            <div class="flex items-center gap-1">
+              <dt class="sr-only">Loose items</dt>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <dd><%= pluralize(@collection.loose_items_count, "loose item") %></dd>
+            </div>
+          <% end %>
           <div class="flex items-center gap-1">
             <dt class="sr-only">Last updated</dt>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -75,6 +84,54 @@
     </div>
   </header>
 
+  <!-- Tab Navigation -->
+  <div class="mb-6">
+    <nav class="flex border-b border-gray-200" aria-label="Collection sections">
+      <%= link_to collection_items_path(@collection),
+          class: "px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors hover:text-indigo-600 #{"border-indigo-500 text-indigo-600" if @current_tab == "items"} #{"border-transparent text-gray-500" unless @current_tab == "items"}" do %>
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Items
+        </span>
+      <% end %>
+      <%= link_to collection_path(@collection, tab: "storage"),
+          class: "px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors hover:text-indigo-600 #{"border-indigo-500 text-indigo-600" if @current_tab == "storage"} #{"border-transparent text-gray-500" unless @current_tab == "storage"}" do %>
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+          </svg>
+          Storage Units
+        </span>
+      <% end %>
+      <%= link_to collection_loose_items_path(@collection),
+          class: "px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors hover:text-indigo-600 #{"border-indigo-500 text-indigo-600" if @current_tab == "loose"} #{"border-transparent text-gray-500" unless @current_tab == "loose"}" do %>
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          Loose Items
+          <% if @collection.loose_items_count > 0 %>
+            <span class="inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-800 rounded-full">
+              <%= @collection.loose_items_count %>
+            </span>
+          <% end %>
+        </span>
+      <% end %>
+      <%= link_to statistics_collection_path(@collection),
+          class: "px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors hover:text-indigo-600 #{"border-indigo-500 text-indigo-600" if @current_tab == "statistics"} #{"border-transparent text-gray-500" unless @current_tab == "statistics"}" do %>
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Statistics
+        </span>
+      <% end %>
+    </nav>
+  </div>
+
+  <!-- Storage Units Tab Content -->
   <section aria-labelledby="storage-heading">
     <header class="flex items-center justify-between mb-4">
       <h2 id="storage-heading" class="text-xl font-semibold text-gray-900">Storage Units</h2>

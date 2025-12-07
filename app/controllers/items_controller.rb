@@ -205,9 +205,15 @@ class ItemsController < ApplicationController
       items_with_names.sort_by { |_, name| name.downcase }.reverse.map(&:first)
     end
 
-    # Return items ordered by the sorted IDs
+    # Return items ordered by the sorted IDs using FIELD-like ordering
+    # Build sanitized CASE statement with integer IDs only (safe from injection)
+    return Item.none if sorted_ids.empty?
+
+    order_clause = sorted_ids.each_with_index.map { |id, i|
+      "WHEN items.id = #{Integer(id)} THEN #{i}"
+    }.join(" ")
     Item.where(id: sorted_ids).includes(:storage_unit).order(
-      Arel.sql("CASE #{sorted_ids.each_with_index.map { |id, i| "WHEN items.id = #{id} THEN #{i}" }.join(" ")} END")
+      Arel.sql("CASE #{order_clause} END") # brakeman:ignore - IDs are integers from DB
     )
   end
 end

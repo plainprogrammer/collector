@@ -1,5 +1,5 @@
 class CollectionsController < ApplicationController
-  before_action :set_collection, only: %i[show edit update destroy]
+  before_action :set_collection, only: %i[show edit update destroy statistics]
 
   def index
     @collections = Collection.includes(:storage_units, :items).order(updated_at: :desc)
@@ -7,6 +7,11 @@ class CollectionsController < ApplicationController
 
   def show
     @storage_units = @collection.storage_units.where(parent_id: nil).includes(:children, :items)
+    @current_tab = params[:tab] || "storage"
+  end
+
+  def statistics
+    @stats = CollectionStatistics.new(@collection)
   end
 
   def new

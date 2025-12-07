@@ -3,6 +3,9 @@ Rails.application.routes.draw do
 
   # Collections and nested resources
   resources :collections do
+    member do
+      get :statistics
+    end
     resources :items, shallow: true do
       member do
         get :move
