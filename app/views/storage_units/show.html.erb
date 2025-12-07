@@ -1,0 +1,136 @@
+<% content_for :title, @storage_unit.name %>
+
+<article class="w-full">
+  <!-- Breadcrumb Navigation -->
+  <nav class="mb-6" aria-label="Breadcrumb">
+    <ol class="flex items-center gap-2 text-sm text-gray-500">
+      <li>
+        <%= link_to @collection.name, @collection, class: "hover:text-gray-700" %>
+      </li>
+      <% @ancestors.each do |ancestor| %>
+        <li class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+          <%= link_to ancestor.name, ancestor, class: "hover:text-gray-700" %>
+        </li>
+      <% end %>
+      <li class="flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        <span class="font-medium text-gray-900"><%= @storage_unit.name %></span>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- Storage Unit Header -->
+  <header class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
+    <div>
+      <div class="flex items-center gap-3 mb-2">
+        <%= render "storage_units/type_badge", storage_unit: @storage_unit %>
+        <h1 class="text-3xl font-bold text-gray-900"><%= @storage_unit.name %></h1>
+      </div>
+
+      <% if @storage_unit.description.present? %>
+        <p class="text-gray-600 mb-2"><%= @storage_unit.description %></p>
+      <% end %>
+
+      <% if @storage_unit.location.present? %>
+        <p class="text-sm text-gray-500">
+          <span class="inline-flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <%= @storage_unit.location %>
+          </span>
+        </p>
+      <% end %>
+
+      <div class="mt-3 flex items-center gap-4 text-sm">
+        <span class="text-gray-600">
+          <strong><%= @direct_count %></strong> <%= "item".pluralize(@direct_count) %> directly stored
+        </span>
+        <% if @nested_count > 0 %>
+          <span class="text-gray-600">
+            <strong><%= @total_count %></strong> <%= "item".pluralize(@total_count) %> total (including nested)
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <%= link_to edit_storage_unit_path(@storage_unit),
+          class: "inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        Edit
+      <% end %>
+    </div>
+  </header>
+
+  <!-- Nested Storage Units -->
+  <% if @nested_units.any? %>
+    <section class="mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Nested Storage Units</h2>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <% @nested_units.each do |nested| %>
+          <%= link_to nested, class: "block p-4 bg-white rounded-lg border border-gray-200 hover:border-indigo-300 hover:shadow-sm transition-all" do %>
+            <div class="flex items-center gap-3">
+              <%= render "storage_units/type_badge", storage_unit: nested %>
+              <div>
+                <h3 class="font-medium text-gray-900"><%= nested.name %></h3>
+                <p class="text-sm text-gray-500"><%= pluralize(nested.total_items_count, "item") %></p>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+
+  <!-- Items in this Storage Unit -->
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold text-gray-900">Items in <%= @storage_unit.name %></h2>
+      <% if @nested_units.any? %>
+        <%= link_to items_storage_unit_path(@storage_unit, include_nested: true),
+            class: "text-sm text-indigo-600 hover:text-indigo-800" do %>
+          View all <%= @total_count %> items including nested
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if @direct_items.any? %>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <% @direct_items.each do |item| %>
+          <%= render "items/item_card", item: item, card: @cards[item.card_uuid] %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12 bg-gray-50 rounded-lg">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No items directly in this unit</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          <% if @nested_count > 0 %>
+            There are <%= @nested_count %> items in nested storage units.
+          <% else %>
+            Add cards from the card browser to this storage unit.
+          <% end %>
+        </p>
+        <div class="mt-4">
+          <%= link_to cards_path, class: "inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Browse Cards
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </section>
+</article>

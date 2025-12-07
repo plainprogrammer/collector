@@ -512,4 +512,39 @@ RSpec.describe "Items", type: :request do
       end
     end
   end
+
+  describe "GET /collections/:collection_id/items/loose" do
+    let(:storage_unit) { create(:storage_unit, collection: collection) }
+
+    before do
+      create(:item, collection: collection, storage_unit: nil, card_uuid: card.uuid)
+      create(:item, collection: collection, storage_unit: storage_unit, card_uuid: card.uuid)
+    end
+
+    it "returns successful response" do
+      get collection_loose_items_path(collection)
+      expect(response).to have_http_status(:success)
+    end
+
+    it "shows only loose items" do
+      get collection_loose_items_path(collection)
+      expect(response.body).to include("1 item")
+    end
+
+    it "displays card name" do
+      get collection_loose_items_path(collection)
+      expect(response.body).to include(card.name)
+    end
+
+    context "when all items are organized" do
+      before do
+        collection.items.where(storage_unit_id: nil).update_all(storage_unit_id: storage_unit.id)
+      end
+
+      it "shows empty state" do
+        get collection_loose_items_path(collection)
+        expect(response.body).to include("All items are organized")
+      end
+    end
+  end
 end

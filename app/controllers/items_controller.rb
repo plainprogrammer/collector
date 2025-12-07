@@ -44,6 +44,14 @@ class ItemsController < ApplicationController
     @card = @item.card
   end
 
+  def loose
+    @collection = Collection.find(params[:collection_id])
+    items = @collection.loose_items
+
+    @pagy, @items = pagy(items.order(created_at: :desc))
+    @cards = load_cards_for_items(@items)
+  end
+
   def new
     @item = @collection.items.build(
       card_uuid: @card.uuid,
