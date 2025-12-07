@@ -940,7 +940,7 @@ RSpec.describe "Collection Statistics", type: :system do
     it "links to filtered views" do
       visit statistics_collection_path(collection)
 
-      click_link "Near mint (NM)"
+      click_link "Near Mint (NM)"
 
       expect(page).to have_current_path(collection_items_path(collection, condition: "near_mint"))
     end
