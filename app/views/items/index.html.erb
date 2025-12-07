@@ -1,0 +1,46 @@
+<% content_for :title, "#{@collection.name} - Items" %>
+
+<section class="w-full" aria-labelledby="items-heading">
+  <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <nav class="text-sm text-gray-500 mb-2">
+        <%= link_to "Collections", collections_path, class: "hover:text-gray-700" %> /
+        <%= link_to @collection.name, @collection, class: "hover:text-gray-700" %>
+      </nav>
+      <h1 id="items-heading" class="text-3xl font-bold text-gray-900">
+        Items
+      </h1>
+      <p class="mt-1 text-gray-600">
+        <%= pluralize(@collection.items.count, "item") %> in this collection
+      </p>
+    </div>
+
+    <%= link_to cards_path,
+        class: "inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add Card
+    <% end %>
+  </header>
+
+  <%= turbo_frame_tag "flash" do %>
+    <%= render "shared/flash" %>
+  <% end %>
+
+  <% if @items.any? %>
+    <div id="items" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <% @items.each do |item| %>
+        <%= render "item_card", item: item, card: @cards[item.card_uuid] %>
+      <% end %>
+    </div>
+
+    <% if @pagy.last > 1 %>
+      <nav class="mt-8 flex justify-center" aria-label="Items pagination">
+        <%== @pagy.series_nav %>
+      </nav>
+    <% end %>
+  <% else %>
+    <%= render "empty_state", collection: @collection %>
+  <% end %>
+</section>

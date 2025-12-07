@@ -12,6 +12,7 @@ class CardsController < ApplicationController
     @card = MTGJSON::Card.includes(:set, :identifiers, :legalities, :rulings)
                          .find_by!(uuid: params[:uuid])
     @other_printings = find_other_printings(@card)
+    @collections = Collection.order(:name)
   rescue ActiveRecord::RecordNotFound
     redirect_to cards_path, alert: "Card not found"
   end

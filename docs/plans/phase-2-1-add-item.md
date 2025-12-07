@@ -250,27 +250,31 @@ Feature: Acquisition Information
 
 ```ruby
 # config/routes.rb
-resources :cards, only: [:index, :show], param: :uuid do
-  resources :items, only: [:new, :create], shallow: true
-end
-
+# Simplified: Items nested under collections with shallow routing
+# Card UUID passed as query parameter when coming from card detail page
 resources :collections do
-  resources :items, only: [:index, :show, :edit, :update, :destroy], shallow: true
+  resources :items, shallow: true
   resources :storage_units, shallow: true
 end
 ```
 
 **Routes generated for this feature:**
-- `GET /cards/:card_uuid/items/new` → `items#new` (add item form)
-- `POST /cards/:card_uuid/items` → `items#create` (create item)
+- `GET /collections/:collection_id/items/new?card_uuid=xxx` → `items#new` (add item form)
+- `POST /collections/:collection_id/items` → `items#create` (create item)
+
+**Flow from card detail page:**
+1. User clicks "Add to Collection" on card detail page
+2. User selects a collection (dropdown/modal on card page)
+3. Redirects to `/collections/:id/items/new?card_uuid=xxx`
 
 ### Controller
 
 ```ruby
 # app/controllers/items_controller.rb
 class ItemsController < ApplicationController
-  before_action :set_card, only: [:new, :create]
+  before_action :set_collection, only: [:index, :new, :create]
   before_action :set_item, only: [:show, :edit, :update, :destroy]
+  before_action :set_card, only: [:new, :create]
 
   def new
     @item = Item.new(
@@ -279,23 +283,27 @@ class ItemsController < ApplicationController
       finish: :nonfoil,
       language: "en"
     )
-    @collections = Collection.order(:name)
+    @storage_units = @collection.storage_units.order(:name)
   end
 
   def create
-    @item = Item.new(item_params)
+    @item = @collection.items.build(item_params)
     @item.card_uuid = @card.uuid
 
     if @item.save
-      redirect_to collection_items_path(@item.collection),
-                  notice: "#{@card.name} added to #{@item.collection.name}"
+      redirect_to collection_items_path(@collection),
+                  notice: "#{@card.name} added to #{@collection.name}"
     else
-      @collections = Collection.order(:name)
+      @storage_units = @collection.storage_units.order(:name)
       render :new, status: :unprocessable_entity
     end
   end
 
   private
+
+  def set_collection
+    @collection = Collection.find(params[:collection_id])
+  end
 
   def set_card
     @card = MTGJSON::Card.includes(:set, :identifiers)
@@ -310,7 +318,6 @@ class ItemsController < ApplicationController
 
   def item_params
     params.require(:item).permit(
-      :collection_id,
       :storage_unit_id,
       :condition,
       :finish,

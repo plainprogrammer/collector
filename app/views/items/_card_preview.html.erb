@@ -1,0 +1,17 @@
+<div class="flex gap-4 mb-6 pb-6 border-b border-gray-200">
+  <div class="flex-shrink-0 w-24">
+    <%= card_image_tag(card, size: :small, class: "w-full rounded-lg shadow") %>
+  </div>
+  <div class="flex-1 min-w-0">
+    <h2 class="text-lg font-semibold text-gray-900"><%= card.name %></h2>
+    <p class="text-sm text-gray-600"><%= card.type %></p>
+    <% if card.set %>
+      <p class="text-sm text-gray-500 mt-1">
+        <%= card.set.name %> (<%= card.setCode %>)
+      </p>
+    <% end %>
+    <% if card.manaCost.present? %>
+      <p class="text-sm text-gray-500 mt-1"><%= format_mana_cost(card.manaCost) %></p>
+    <% end %>
+  </div>
+</div>

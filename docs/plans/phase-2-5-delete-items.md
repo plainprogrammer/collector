@@ -159,10 +159,14 @@ Feature: Deletion Edge Cases
 
 ```ruby
 # config/routes.rb
-resources :items, only: [:show, :edit, :update, :destroy]
+# Items are nested under collections with shallow routing
+resources :collections do
+  resources :items, shallow: true
+  resources :storage_units, shallow: true
+end
 ```
 
-**Route for this feature:**
+**Route for this feature (shallow):**
 - `DELETE /items/:id` → `items#destroy`
 
 ### Controller

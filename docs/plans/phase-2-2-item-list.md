@@ -237,8 +237,9 @@ Feature: Items Navigation
 
 ```ruby
 # config/routes.rb
+# Simplified: Items nested under collections with shallow routing
 resources :collections do
-  resources :items, only: [:index, :show, :edit, :update, :destroy], shallow: true
+  resources :items, shallow: true
   resources :storage_units, shallow: true
 end
 ```

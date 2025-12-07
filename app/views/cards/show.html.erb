@@ -119,9 +119,6 @@
   <% end %>
 
   <footer class="mt-8 pt-8 border-t border-gray-200">
-    <p class="text-gray-500 text-sm">
-      Want to add this card to your collection?
-      <span class="text-indigo-600">Coming soon in Phase 2!</span>
-    </p>
+    <%= render "add_to_collection", card: @card, collections: @collections %>
   </footer>
 </article>

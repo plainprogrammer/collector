@@ -1,0 +1,153 @@
+<% content_for :title, "Edit #{@card&.name || 'Item'}" %>
+
+<div class="max-w-2xl mx-auto">
+  <nav class="mb-6">
+    <%= link_to item_path(@item), class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Item
+    <% end %>
+  </nav>
+
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Item</h1>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <%= render "card_preview", card: @card %>
+
+    <%= form_with model: @item, local: true, class: "space-y-6" do |f| %>
+      <% if @item.errors.any? %>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="error-message">
+          <h3 class="text-red-800 font-medium">Please correct the following errors:</h3>
+          <ul class="mt-2 text-sm text-red-700 list-disc list-inside">
+            <% @item.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <fieldset>
+        <legend class="text-sm font-medium text-gray-700 mb-3">Storage Location</legend>
+
+        <div>
+          <%= f.label :storage_unit_id, "Storage Unit", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :storage_unit_id,
+              options_for_select(
+                [["No storage unit (loose)", nil]] + @storage_units.map { |u| [u.name, u.id] },
+                @item.storage_unit_id
+              ),
+              {},
+              class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="text-sm font-medium text-gray-700 mb-3">Card Condition</legend>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <%= f.label :condition, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :condition,
+                condition_options,
+                {},
+                class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= f.label :finish, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :finish,
+                finish_options,
+                {},
+                class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+
+          <div>
+            <%= f.label :language, class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.select :language,
+                language_options,
+                {},
+                class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="text-sm font-medium text-gray-700 mb-3">Special Attributes</legend>
+        <div class="flex flex-wrap gap-6">
+          <label class="flex items-center gap-2">
+            <%= f.check_box :signed, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+            <span class="text-sm text-gray-700">Signed</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <%= f.check_box :altered, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+            <span class="text-sm text-gray-700">Altered</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <%= f.check_box :misprint, class: "rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+            <span class="text-sm text-gray-700">Misprint</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="text-sm font-medium text-gray-700 mb-3">Grading <span class="font-normal text-gray-500">(optional)</span></legend>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <%= f.label :grading_service, "Grading Service", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.text_field :grading_service,
+                placeholder: "e.g., PSA, BGS, CGC",
+                class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+          <div>
+            <%= f.label :grading_score, "Grade", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.number_field :grading_score,
+                step: 0.5,
+                min: 0,
+                max: 10,
+                class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend class="text-sm font-medium text-gray-700 mb-3">Acquisition Information <span class="font-normal text-gray-500">(optional)</span></legend>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <%= f.label :acquisition_date, "Date Acquired", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <%= f.date_field :acquisition_date,
+                class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" %>
+          </div>
+          <div>
+            <%= f.label :acquisition_price, "Price Paid", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <div class="relative rounded-lg shadow-sm">
+              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span class="text-gray-500 sm:text-sm">$</span>
+              </div>
+              <%= f.number_field :acquisition_price,
+                  step: 0.01,
+                  min: 0,
+                  class: "block w-full rounded-lg border-gray-300 pl-7 focus:border-indigo-500 focus:ring-indigo-500" %>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :notes, class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.text_area :notes,
+              rows: 3,
+              class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
+              placeholder: "Where you got it, who you traded with, etc." %>
+        </div>
+      </fieldset>
+
+      <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <%= link_to "Cancel", item_path(@item), class: "px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors" %>
+        <%= f.submit "Save Changes",
+            class: "px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors" %>
+      </div>
+    <% end %>
+  </div>
+</div>

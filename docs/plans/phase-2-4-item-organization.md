@@ -174,11 +174,15 @@ The move functionality can be implemented using the existing `update` action, or
 
 ```ruby
 # config/routes.rb
-resources :items, only: [:show, :edit, :update, :destroy] do
-  member do
-    get :move       # Show move form
-    patch :relocate # Process move
+# Items are nested under collections with shallow routing
+resources :collections do
+  resources :items, shallow: true do
+    member do
+      get :move       # Show move form
+      patch :relocate # Process move
+    end
   end
+  resources :storage_units, shallow: true
 end
 ```
 

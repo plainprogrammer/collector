@@ -1,0 +1,54 @@
+<article class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+         data-testid="item-card">
+  <%= link_to item_path(item), class: "block" do %>
+    <div class="aspect-[5/7] bg-gray-100 relative">
+      <% if card %>
+        <%= card_image_tag(card, size: :normal, class: "w-full h-full object-cover") %>
+      <% else %>
+        <div class="flex items-center justify-center h-full text-gray-400">
+          <span class="text-sm">Image not available</span>
+        </div>
+      <% end %>
+
+      <% if foil?(item) %>
+        <div class="absolute top-2 right-2">
+          <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium <%= finish_badge_class(item.finish) %>">
+            <%= item.finish.humanize %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="p-3">
+      <h3 class="font-semibold text-gray-900 truncate">
+        <%= card&.name || "Unknown Card" %>
+      </h3>
+      <p class="text-sm text-gray-500 truncate">
+        <%= card&.set&.name || item.card_uuid.first(8) %>
+      </p>
+
+      <div class="mt-2 flex items-center gap-2">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= condition_badge_class(item.condition) %>">
+          <%= condition_abbreviation(item.condition) %>
+        </span>
+
+        <% if item.language != "en" %>
+          <span class="text-xs text-gray-500"><%= item.language.upcase %></span>
+        <% end %>
+
+        <% special_attributes(item).each do |attr| %>
+          <span class="text-xs text-purple-600"><%= attr %></span>
+        <% end %>
+      </div>
+
+      <% if item.storage_unit %>
+        <p class="mt-2 text-xs text-gray-500 truncate">
+          <svg class="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          <%= item.storage_unit.name %>
+        </p>
+      <% end %>
+    </div>
+  <% end %>
+</article>

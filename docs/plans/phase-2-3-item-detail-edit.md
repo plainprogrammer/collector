@@ -282,12 +282,14 @@ Feature: Item Detail Navigation
 
 ```ruby
 # config/routes.rb
+# Simplified: Items nested under collections with shallow routing
 resources :collections do
-  resources :items, only: [:index, :show, :edit, :update, :destroy], shallow: true
+  resources :items, shallow: true
+  resources :storage_units, shallow: true
 end
 ```
 
-**Routes for this feature:**
+**Routes for this feature (shallow):**
 - `GET /items/:id` → `items#show`
 - `GET /items/:id/edit` → `items#edit`
 - `PATCH/PUT /items/:id` → `items#update`

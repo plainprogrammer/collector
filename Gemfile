@@ -60,6 +60,9 @@ group :development, :test do
   # RSpec testing framework [https://rspec.info/]
   gem "rspec-rails", "~> 8.0"
 
+  # Test data factories [https://github.com/thoughtbot/factory_bot_rails]
+  gem "factory_bot_rails"
+
   # Acceptance test framework for web applications [https://github.com/teamcapybara/capybara]
   gem "capybara"
 

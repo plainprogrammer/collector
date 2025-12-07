@@ -3,6 +3,12 @@ Rails.application.routes.draw do
 
   # Collections and nested resources
   resources :collections do
+    resources :items, shallow: true do
+      member do
+        get :move
+        patch :relocate
+      end
+    end
     resources :storage_units, shallow: true
   end
 

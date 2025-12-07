@@ -1,0 +1,20 @@
+<% content_for :title, "Add #{@card.name} to #{@collection.name}" %>
+
+<div class="max-w-2xl mx-auto">
+  <nav class="mb-6">
+    <%= link_to card_path(@card.uuid), class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition-colors" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to Card
+    <% end %>
+  </nav>
+
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Add to Collection</h1>
+
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <%= render "card_preview", card: @card %>
+
+    <%= render "form", item: @item, card: @card, collection: @collection, storage_units: @storage_units %>
+  </div>
+</div>
