@@ -170,4 +170,116 @@ RSpec.describe ItemsHelper, type: :helper do
       expect(helper.special_attributes(item)).to be_empty
     end
   end
+
+  describe "#color_options" do
+    it "returns an array of color options" do
+      options = helper.color_options
+      expect(options).to be_an(Array)
+      expect(options.first).to eq([ "All Colors", "" ])
+    end
+
+    it "includes all MTG colors" do
+      options = helper.color_options
+      expect(options).to include([ "White", "W" ])
+      expect(options).to include([ "Blue", "U" ])
+      expect(options).to include([ "Black", "B" ])
+      expect(options).to include([ "Red", "R" ])
+      expect(options).to include([ "Green", "G" ])
+    end
+
+    it "includes colorless and multicolor" do
+      options = helper.color_options
+      expect(options).to include([ "Colorless", "C" ])
+      expect(options).to include([ "Multicolor", "M" ])
+    end
+  end
+
+  describe "#type_options" do
+    it "returns an array of type options" do
+      options = helper.type_options
+      expect(options).to be_an(Array)
+      expect(options.first).to eq([ "All Types", "" ])
+    end
+
+    it "includes major card types" do
+      options = helper.type_options
+      expect(options).to include([ "Creature", "Creature" ])
+      expect(options).to include([ "Instant", "Instant" ])
+      expect(options).to include([ "Sorcery", "Sorcery" ])
+      expect(options).to include([ "Land", "Land" ])
+    end
+  end
+
+  describe "#finish_filter_options" do
+    it "returns an array of finish filter options" do
+      options = helper.finish_filter_options
+      expect(options).to be_an(Array)
+      expect(options.first).to eq([ "All Finishes", "" ])
+    end
+
+    it "includes foil aggregate option" do
+      options = helper.finish_filter_options
+      expect(options).to include([ "Any Foil", "foil" ])
+    end
+  end
+
+  describe "#sort_options" do
+    it "returns an array of sort options" do
+      options = helper.sort_options
+      expect(options).to be_an(Array)
+    end
+
+    it "includes date and name options" do
+      options = helper.sort_options
+      expect(options).to include([ "Newest First", "date_desc" ])
+      expect(options).to include([ "Name (A-Z)", "name_asc" ])
+    end
+  end
+
+  describe "#condition_filter_options" do
+    it "starts with All Conditions" do
+      options = helper.condition_filter_options
+      expect(options.first).to eq([ "All Conditions", "" ])
+    end
+
+    it "includes all condition options" do
+      options = helper.condition_filter_options
+      expect(options.map(&:last)).to include("near_mint", "lightly_played")
+    end
+  end
+
+  describe "#color_symbol" do
+    it "returns full name for color codes" do
+      expect(helper.color_symbol("W")).to eq("White")
+      expect(helper.color_symbol("U")).to eq("Blue")
+      expect(helper.color_symbol("B")).to eq("Black")
+      expect(helper.color_symbol("R")).to eq("Red")
+      expect(helper.color_symbol("G")).to eq("Green")
+    end
+
+    it "returns Colorless for C" do
+      expect(helper.color_symbol("C")).to eq("Colorless")
+    end
+
+    it "returns Multicolor for M" do
+      expect(helper.color_symbol("M")).to eq("Multicolor")
+    end
+
+    it "returns the code itself for unknown codes" do
+      expect(helper.color_symbol("X")).to eq("X")
+    end
+  end
+
+  describe "#set_filter_options" do
+    it "starts with All Sets" do
+      options = helper.set_filter_options(%w[MH3 ONE BRO])
+      expect(options.first).to eq([ "All Sets", "" ])
+    end
+
+    it "includes provided sets" do
+      options = helper.set_filter_options(%w[MH3 ONE])
+      expect(options).to include([ "MH3", "MH3" ])
+      expect(options).to include([ "ONE", "ONE" ])
+    end
+  end
 end

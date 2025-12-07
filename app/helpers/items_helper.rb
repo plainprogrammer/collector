@@ -1,4 +1,43 @@
 module ItemsHelper
+  COLOR_OPTIONS = [
+    [ "All Colors", "" ],
+    [ "White", "W" ],
+    [ "Blue", "U" ],
+    [ "Black", "B" ],
+    [ "Red", "R" ],
+    [ "Green", "G" ],
+    [ "Colorless", "C" ],
+    [ "Multicolor", "M" ]
+  ].freeze
+
+  TYPE_OPTIONS = [
+    [ "All Types", "" ],
+    [ "Creature", "Creature" ],
+    [ "Instant", "Instant" ],
+    [ "Sorcery", "Sorcery" ],
+    [ "Artifact", "Artifact" ],
+    [ "Enchantment", "Enchantment" ],
+    [ "Planeswalker", "Planeswalker" ],
+    [ "Land", "Land" ]
+  ].freeze
+
+  FINISH_FILTER_OPTIONS = [
+    [ "All Finishes", "" ],
+    [ "Non-foil", "nonfoil" ],
+    [ "Any Foil", "foil" ],
+    [ "Traditional Foil", "traditional_foil" ],
+    [ "Etched", "etched" ]
+  ].freeze
+
+  SORT_OPTIONS = [
+    [ "Newest First", "date_desc" ],
+    [ "Oldest First", "date_asc" ],
+    [ "Name (A-Z)", "name_asc" ],
+    [ "Name (Z-A)", "name_desc" ],
+    [ "Condition (Best)", "condition_asc" ],
+    [ "Condition (Worst)", "condition_desc" ]
+  ].freeze
+
   LANGUAGES = [
     [ "English", "en" ],
     [ "Japanese", "ja" ],
@@ -87,5 +126,41 @@ module ItemsHelper
     attrs << "Altered" if item.altered
     attrs << "Misprint" if item.misprint
     attrs
+  end
+
+  def color_options
+    COLOR_OPTIONS
+  end
+
+  def type_options
+    TYPE_OPTIONS
+  end
+
+  def finish_filter_options
+    FINISH_FILTER_OPTIONS
+  end
+
+  def sort_options
+    SORT_OPTIONS
+  end
+
+  def condition_filter_options
+    [ [ "All Conditions", "" ] ] + condition_options
+  end
+
+  def color_symbol(color_code)
+    {
+      "W" => "White",
+      "U" => "Blue",
+      "B" => "Black",
+      "R" => "Red",
+      "G" => "Green",
+      "C" => "Colorless",
+      "M" => "Multicolor"
+    }[color_code] || color_code
+  end
+
+  def set_filter_options(available_sets)
+    [ [ "All Sets", "" ] ] + available_sets.map { |s| [ s, s ] }
   end
 end

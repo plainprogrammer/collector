@@ -1,0 +1,40 @@
+<%= turbo_stream.update "items_list" do %>
+  <%= render "filters" %>
+
+  <% if @items.any? %>
+    <div id="items" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <% @items.each do |item| %>
+        <%= render "item_card", item: item, card: @cards[item.card_uuid] %>
+      <% end %>
+    </div>
+
+    <% if @pagy.last > 1 %>
+      <nav class="mt-8 flex justify-center" aria-label="Items pagination">
+        <%== @pagy.series_nav %>
+      </nav>
+    <% end %>
+  <% elsif @applied_filters.any? %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg" data-testid="no-results">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <h3 class="mt-2 text-lg font-semibold text-gray-900">No items match your filters</h3>
+      <p class="mt-1 text-gray-500">Try adjusting your filters or clear them to see all items.</p>
+      <div class="mt-4 flex flex-wrap justify-center gap-2 text-sm text-gray-600">
+        <% @applied_filters.each do |key, value| %>
+          <span class="inline-flex items-center px-2 py-1 rounded bg-gray-200">
+            <%= key.to_s.titleize %>: <%= value %>
+          </span>
+        <% end %>
+      </div>
+      <div class="mt-6">
+        <%= link_to "Clear Filters",
+            collection_items_path(@collection),
+            class: "inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors",
+            data: { turbo_frame: "items_list" } %>
+      </div>
+    </div>
+  <% else %>
+    <%= render "empty_state", collection: @collection %>
+  <% end %>
+<% end %>

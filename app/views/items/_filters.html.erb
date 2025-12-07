@@ -1,0 +1,99 @@
+<div class="mb-6" data-controller="item-filters">
+  <!-- Mobile toggle -->
+  <button type="button"
+          class="sm:hidden flex items-center gap-2 text-gray-700 font-medium mb-4"
+          data-action="item-filters#toggle"
+          data-item-filters-target="toggleButton"
+          aria-expanded="false"
+          aria-controls="filter-panel">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+    </svg>
+    Filters
+    <span class="hidden text-indigo-600" data-item-filters-target="activeCount"></span>
+  </button>
+
+  <!-- Filter panel -->
+  <div id="filter-panel"
+       class="hidden sm:block bg-white rounded-lg border border-gray-200 p-4"
+       data-item-filters-target="panel">
+    <%= form_with url: collection_items_path(@collection), method: :get, local: false,
+        data: { item_filters_target: "form", turbo_frame: "items_list", turbo_action: "advance" },
+        class: "space-y-4" do |f| %>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <!-- Set Filter -->
+        <div>
+          <%= f.label :set, "Set", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :set,
+              options_for_select(set_filter_options(@available_sets), params[:set]),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+              data: { action: "change->item-filters#filter" } %>
+        </div>
+
+        <!-- Color Filter -->
+        <div>
+          <%= f.label :color, "Color", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :color,
+              options_for_select(color_options, params[:color]),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+              data: { action: "change->item-filters#filter" } %>
+        </div>
+
+        <!-- Type Filter -->
+        <div>
+          <%= f.label :type, "Type", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :type,
+              options_for_select(type_options, params[:type]),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+              data: { action: "change->item-filters#filter" } %>
+        </div>
+
+        <!-- Condition Filter -->
+        <div>
+          <%= f.label :condition, "Condition", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :condition,
+              options_for_select(condition_filter_options, params[:condition]),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+              data: { action: "change->item-filters#filter" } %>
+        </div>
+
+        <!-- Finish Filter -->
+        <div>
+          <%= f.label :finish, "Finish", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :finish,
+              options_for_select(finish_filter_options, params[:finish]),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+              data: { action: "change->item-filters#filter" } %>
+        </div>
+
+        <!-- Sort -->
+        <div>
+          <%= f.label :sort, "Sort", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= f.select :sort,
+              options_for_select(sort_options, params[:sort] || "date_desc"),
+              {},
+              class: "block w-full rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500",
+              data: { action: "change->item-filters#filter" } %>
+        </div>
+      </div>
+
+      <% if @applied_filters.any? %>
+        <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+          <span class="text-sm text-gray-600">
+            <%= pluralize(@pagy.count, "item") %> found
+          </span>
+          <%= link_to "Clear All",
+              collection_items_path(@collection),
+              class: "text-sm text-indigo-600 hover:text-indigo-800",
+              data: { turbo_frame: "items_list" } %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>
