@@ -430,7 +430,6 @@ end
 class CollectionsController < ApplicationController
   def statistics
     @collection = Collection.find(params[:id])
-    @stats = CollectionStatistics.new(@collection)
 
     # Cache statistics for 5 minutes
     @stats = Rails.cache.fetch("collection_stats_#{@collection.id}", expires_in: 5.minutes) do
