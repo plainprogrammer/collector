@@ -1,6 +1,6 @@
 <article class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
          data-testid="item-card">
-  <%= link_to item_path(item), class: "block" do %>
+  <%= link_to item_path(item), class: "block", data: { turbo_frame: "_top" } do %>
     <div class="aspect-[5/7] bg-gray-100 relative">
       <% if card %>
         <%= card_image_tag(card, size: :normal, class: "w-full h-full object-cover") %>

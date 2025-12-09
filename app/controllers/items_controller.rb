@@ -6,14 +6,50 @@ class ItemsController < ApplicationController
   before_action :set_card, only: [ :new, :create ]
 
   def index
-    @pagy, @items = pagy(@collection.items.includes(:storage_unit).order(created_at: :desc))
+    # Load all cards for items in this collection (needed for filtering)
+    all_item_uuids = @collection.items.pluck(:card_uuid).uniq
+    @all_cards = MTGJSON::Card.includes(:set, :identifiers)
+                              .where(uuid: all_item_uuids)
+                              .index_by(&:uuid)
 
-    # Batch load MTGJSON card data to avoid N+1
-    @cards = load_cards_for_items(@items)
+    # Build filters
+    @filters = ItemFilters.new(filter_params)
+    @applied_filters = @filters.to_h
+
+    # Start with base query
+    items = @collection.items.includes(:storage_unit)
+
+    # Apply filters
+    items = @filters.apply(items, cards: @all_cards)
+
+    # Apply sorting
+    items = apply_sort(items, @all_cards)
+
+    # Paginate
+    @pagy, @items = pagy(items)
+
+    # Build cards hash for just the paginated items
+    @cards = @all_cards.slice(*@items.map(&:card_uuid))
+
+    # Get available sets for filter dropdown
+    @available_sets = @all_cards.values.map(&:setCode).uniq.compact.sort
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream if turbo_frame_request?
+    end
   end
 
   def show
     @card = @item.card
+  end
+
+  def loose
+    @collection = Collection.find(params[:collection_id])
+    items = @collection.loose_items
+
+    @pagy, @items = pagy(items.order(created_at: :desc))
+    @cards = load_cards_for_items(@items)
   end
 
   def new
@@ -132,5 +168,52 @@ class ItemsController < ApplicationController
     MTGJSON::Card.includes(:set, :identifiers)
                  .where(uuid: uuids)
                  .index_by(&:uuid)
+  end
+
+  def filter_params
+    params.permit(:set, :color, :type, :condition, :finish, :sort)
+  end
+
+  def apply_sort(items, cards)
+    case params[:sort]
+    when "name_asc"
+      sort_by_card_name(items, cards, :asc)
+    when "name_desc"
+      sort_by_card_name(items, cards, :desc)
+    when "date_asc"
+      items.order(created_at: :asc)
+    when "condition_asc"
+      items.order(condition: :asc)
+    when "condition_desc"
+      items.order(condition: :desc)
+    else # "date_desc" or default
+      items.order(created_at: :desc)
+    end
+  end
+
+  def sort_by_card_name(items, cards, direction)
+    # For name sorting, we need to do it in-memory since card data is in a different database
+    item_ids = items.pluck(:id)
+    items_with_names = Item.where(id: item_ids).map do |item|
+      card = cards[item.card_uuid]
+      [ item.id, card&.name || "" ]
+    end
+
+    sorted_ids = if direction == :asc
+      items_with_names.sort_by { |_, name| name.downcase }.map(&:first)
+    else
+      items_with_names.sort_by { |_, name| name.downcase }.reverse.map(&:first)
+    end
+
+    # Return items ordered by the sorted IDs using FIELD-like ordering
+    # Build sanitized CASE statement with integer IDs only (safe from injection)
+    return Item.none if sorted_ids.empty?
+
+    order_clause = sorted_ids.each_with_index.map { |id, i|
+      "WHEN items.id = #{Integer(id)} THEN #{i}"
+    }.join(" ")
+    Item.where(id: sorted_ids).includes(:storage_unit).order(
+      Arel.sql("CASE #{order_clause} END") # brakeman:ignore - IDs are integers from DB
+    )
   end
 end

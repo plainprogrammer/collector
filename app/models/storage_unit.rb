@@ -20,7 +20,37 @@ class StorageUnit < ApplicationRecord
   validates :collection_id, presence: true
   validate :prevent_circular_nesting
 
+  # Count items including nested units
+  def total_items_count
+    items.count + children.sum(&:total_items_count)
+  end
+
+  # Get all items including nested
+  def all_items
+    item_ids = collect_all_item_ids
+    Item.where(id: item_ids)
+  end
+
+  # Build breadcrumb ancestors
+  def ancestors
+    result = []
+    current = parent
+    while current
+      result.unshift(current)
+      current = current.parent
+    end
+    result
+  end
+
   private
+
+  def collect_all_item_ids
+    ids = items.pluck(:id)
+    children.each do |child|
+      ids.concat(child.send(:collect_all_item_ids))
+    end
+    ids
+  end
 
   def prevent_circular_nesting
     return unless parent_id

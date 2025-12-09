@@ -136,4 +136,100 @@ RSpec.describe "StorageUnits", type: :request do
       end
     end
   end
+
+  describe "GET /storage_units/:id", :mtgjson do
+    let(:storage_unit) { create(:storage_unit, collection: collection, name: "Box A") }
+    let(:card) { MTGJSON::Card.first }
+
+    context "with items" do
+      before do
+        create_list(:item, 3, collection: collection, storage_unit: storage_unit, card_uuid: card.uuid)
+      end
+
+      it "returns successful response" do
+        get storage_unit_path(storage_unit)
+        expect(response).to have_http_status(:success)
+      end
+
+      it "shows item count" do
+        get storage_unit_path(storage_unit)
+        expect(response.body).to include("3")
+        expect(response.body).to include("item")
+      end
+
+      it "displays items" do
+        get storage_unit_path(storage_unit)
+        expect(response.body).to include(card.name)
+      end
+    end
+
+    context "with nested units" do
+      let!(:nested) { create(:storage_unit, collection: collection, parent: storage_unit, name: "Deck Box") }
+
+      before do
+        create_list(:item, 2, collection: collection, storage_unit: storage_unit, card_uuid: card.uuid)
+        create_list(:item, 3, collection: collection, storage_unit: nested, card_uuid: card.uuid)
+      end
+
+      it "shows nested unit" do
+        get storage_unit_path(storage_unit)
+        expect(response.body).to include("Deck Box")
+      end
+
+      it "shows total count" do
+        get storage_unit_path(storage_unit)
+        expect(response.body).to include("5")
+        expect(response.body).to include("total")
+      end
+    end
+
+    context "empty storage unit" do
+      it "shows empty state" do
+        get storage_unit_path(storage_unit)
+        expect(response.body).to include("No items")
+      end
+    end
+
+    it "displays breadcrumb navigation" do
+      get storage_unit_path(storage_unit)
+      expect(response.body).to include(collection.name)
+    end
+  end
+
+  describe "GET /storage_units/:id/items", :mtgjson do
+    let(:storage_unit) { create(:storage_unit, collection: collection) }
+    let(:card) { MTGJSON::Card.first }
+
+    before do
+      create(:item, collection: collection, storage_unit: storage_unit, card_uuid: card.uuid)
+    end
+
+    it "returns successful response" do
+      get items_storage_unit_path(storage_unit)
+      expect(response).to have_http_status(:success)
+    end
+
+    it "shows items" do
+      get items_storage_unit_path(storage_unit)
+      expect(response.body).to include(card.name)
+    end
+
+    context "with nested storage unit" do
+      let!(:nested) { create(:storage_unit, collection: collection, parent: storage_unit) }
+
+      before do
+        create(:item, collection: collection, storage_unit: nested, card_uuid: card.uuid)
+      end
+
+      it "shows only direct items by default" do
+        get items_storage_unit_path(storage_unit)
+        expect(response.body).to include("1 item")
+      end
+
+      it "includes nested items when requested" do
+        get items_storage_unit_path(storage_unit, include_nested: true)
+        expect(response.body).to include("2 items")
+      end
+    end
+  end
 end

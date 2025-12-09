@@ -1,0 +1,58 @@
+<% content_for :title, "Items in #{@storage_unit.name}" %>
+
+<article class="w-full">
+  <nav class="mb-6">
+    <%= link_to @storage_unit, class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to <%= @storage_unit.name %>
+    <% end %>
+  </nav>
+
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">
+      <%= @include_nested ? "All Items" : "Items" %> in <%= @storage_unit.name %>
+    </h1>
+    <p class="mt-1 text-gray-600">
+      <%= pluralize(@pagy.count, "item") %>
+      <%= "including nested storage units" if @include_nested %>
+    </p>
+
+    <% if @storage_unit.children.any? %>
+      <div class="mt-4 flex gap-4">
+        <% if @include_nested %>
+          <%= link_to "Show direct items only",
+              items_storage_unit_path(@storage_unit),
+              class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+        <% else %>
+          <%= link_to "Include nested items",
+              items_storage_unit_path(@storage_unit, include_nested: true),
+              class: "text-sm text-indigo-600 hover:text-indigo-800" %>
+        <% end %>
+      </div>
+    <% end %>
+  </header>
+
+  <% if @items.any? %>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <% @items.each do |item| %>
+        <%= render "items/item_card", item: item, card: @cards[item.card_uuid] %>
+      <% end %>
+    </div>
+
+    <% if @pagy.last > 1 %>
+      <nav class="mt-8 flex justify-center">
+        <%== @pagy.series_nav %>
+      </nav>
+    <% end %>
+  <% else %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No items in this unit</h3>
+      <p class="mt-1 text-sm text-gray-500">Add cards from the card browser to this storage unit.</p>
+    </div>
+  <% end %>
+</article>

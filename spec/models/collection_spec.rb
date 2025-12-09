@@ -33,4 +33,28 @@ RSpec.describe Collection, type: :model do
       expect(Collection.column_names).to include("id", "name", "description", "created_at", "updated_at")
     end
   end
+
+  describe "#loose_items", :mtgjson do
+    let(:collection) { create(:collection) }
+    let(:storage_unit) { create(:storage_unit, collection: collection) }
+    let(:card) { MTGJSON::Card.first }
+
+    it "returns items without storage unit" do
+      loose = create(:item, collection: collection, storage_unit: nil, card_uuid: card.uuid)
+      stored = create(:item, collection: collection, storage_unit: storage_unit, card_uuid: card.uuid)
+
+      expect(collection.loose_items).to include(loose)
+      expect(collection.loose_items).not_to include(stored)
+    end
+  end
+
+  describe "#loose_items_count", :mtgjson do
+    let(:collection) { create(:collection) }
+    let(:card) { MTGJSON::Card.first }
+
+    it "returns count of unsorted items" do
+      create_list(:item, 3, collection: collection, storage_unit: nil, card_uuid: card.uuid)
+      expect(collection.loose_items_count).to eq(3)
+    end
+  end
 end

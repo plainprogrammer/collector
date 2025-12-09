@@ -1,0 +1,24 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "fingerprint": "c11e57d9cdd3b9f51aa4650f5af2f3402e2e5d7c49515267706b69700a4e8fe8",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/items_controller.rb",
+      "line": 216,
+      "code": null,
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ItemsController",
+        "method": "sort_by_card_name"
+      },
+      "user_input": null,
+      "confidence": "High",
+      "note": "False positive - IDs are integers from database, converted with Integer() for safety"
+    }
+  ],
+  "updated": "2025-12-07",
+  "brakeman_version": "7.1.1"
+}

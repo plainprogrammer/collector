@@ -66,6 +66,92 @@ RSpec.describe "Items", type: :request do
         expect(response.body).to include("Box A")
       end
     end
+
+    context "with filters" do
+      before do
+        create(:item, collection: collection, card_uuid: card.uuid, condition: :near_mint, finish: :nonfoil)
+        create(:item, collection: collection, card_uuid: card.uuid, condition: :lightly_played, finish: :traditional_foil)
+      end
+
+      it "shows filter controls" do
+        get collection_items_path(collection)
+        expect(response.body).to include("Set")
+        expect(response.body).to include("Color")
+        expect(response.body).to include("Type")
+        expect(response.body).to include("Condition")
+        expect(response.body).to include("Finish")
+        expect(response.body).to include("Sort")
+      end
+
+      it "filters by condition" do
+        get collection_items_path(collection), params: { condition: "near_mint" }
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("1 item")
+      end
+
+      it "filters by finish" do
+        get collection_items_path(collection), params: { finish: "foil" }
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("Traditional")
+      end
+
+      it "applies combined filters" do
+        get collection_items_path(collection), params: { condition: "near_mint", finish: "nonfoil" }
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("1 item")
+      end
+
+      it "shows empty state when no items match" do
+        get collection_items_path(collection), params: { condition: "damaged" }
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("No items match")
+      end
+
+      it "preserves filter state in form" do
+        get collection_items_path(collection), params: { condition: "near_mint" }
+        expect(response.body).to include("near_mint")
+      end
+    end
+
+    context "with sorting" do
+      before do
+        create(:item, collection: collection, card_uuid: card.uuid, condition: :near_mint)
+        create(:item, collection: collection, card_uuid: card.uuid, condition: :lightly_played)
+      end
+
+      it "sorts by condition ascending" do
+        get collection_items_path(collection), params: { sort: "condition_asc" }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "sorts by condition descending" do
+        get collection_items_path(collection), params: { sort: "condition_desc" }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "sorts by date descending by default" do
+        get collection_items_path(collection)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context "with turbo frame request" do
+      before do
+        create(:item, collection: collection, card_uuid: card.uuid)
+      end
+
+      it "returns turbo stream response for frame request" do
+        get collection_items_path(collection),
+            headers: { "Turbo-Frame" => "items_list" },
+            as: :turbo_stream
+        expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      end
+
+      it "returns html response for non-frame request" do
+        get collection_items_path(collection), as: :turbo_stream
+        expect(response.media_type).to eq("text/html")
+      end
+    end
   end
 
   describe "GET /collections/:collection_id/items/new" do
@@ -423,6 +509,41 @@ RSpec.describe "Items", type: :request do
       it "returns not found" do
         delete item_path(id: 99999)
         expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe "GET /collections/:collection_id/items/loose" do
+    let(:storage_unit) { create(:storage_unit, collection: collection) }
+
+    before do
+      create(:item, collection: collection, storage_unit: nil, card_uuid: card.uuid)
+      create(:item, collection: collection, storage_unit: storage_unit, card_uuid: card.uuid)
+    end
+
+    it "returns successful response" do
+      get collection_loose_items_path(collection)
+      expect(response).to have_http_status(:success)
+    end
+
+    it "shows only loose items" do
+      get collection_loose_items_path(collection)
+      expect(response.body).to include("1 item")
+    end
+
+    it "displays card name" do
+      get collection_loose_items_path(collection)
+      expect(response.body).to include(card.name)
+    end
+
+    context "when all items are organized" do
+      before do
+        collection.items.where(storage_unit_id: nil).update_all(storage_unit_id: storage_unit.id)
+      end
+
+      it "shows empty state" do
+        get collection_loose_items_path(collection)
+        expect(response.body).to include("All items are organized")
       end
     end
   end

@@ -1,0 +1,211 @@
+<% content_for :title, "Statistics - #{@collection.name}" %>
+
+<article class="w-full">
+  <nav class="mb-6">
+    <%= link_to @collection, class: "inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Back to <%= @collection.name %>
+    <% end %>
+  </nav>
+
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Collection Statistics</h1>
+    <p class="mt-1 text-gray-600"><%= @collection.name %></p>
+  </header>
+
+  <% if @stats.total_count.zero? %>
+    <div class="text-center py-12 bg-gray-50 rounded-lg">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No items in this collection</h3>
+      <p class="mt-1 text-sm text-gray-500">Add some cards to see statistics.</p>
+      <div class="mt-4">
+        <%= link_to cards_path, class: "inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700" do %>
+          Browse Cards
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <dt class="text-sm font-medium text-gray-500">Total Items</dt>
+        <dd class="mt-1 text-3xl font-bold text-gray-900"><%= number_with_delimiter(@stats.total_count) %></dd>
+      </div>
+      <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <dt class="text-sm font-medium text-gray-500">Unique Cards</dt>
+        <dd class="mt-1 text-3xl font-bold text-gray-900"><%= number_with_delimiter(@stats.unique_count) %></dd>
+      </div>
+      <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <dt class="text-sm font-medium text-gray-500">Avg Copies</dt>
+        <dd class="mt-1 text-3xl font-bold text-gray-900"><%= @stats.average_copies %></dd>
+      </div>
+      <div class="bg-white rounded-lg border border-gray-200 p-4">
+        <dt class="text-sm font-medium text-gray-500">Foil Cards</dt>
+        <dd class="mt-1 text-3xl font-bold text-gray-900">
+          <%= @stats.foil_count %>
+          <span class="text-sm font-normal text-gray-500">(<%= @stats.foil_percentage %>%)</span>
+        </dd>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-8">
+      <!-- Set Distribution -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Sets</h2>
+        <div class="space-y-3">
+          <% @stats.set_breakdown.first(10).each do |set_code, count| %>
+            <div class="flex items-center justify-between">
+              <%= link_to collection_items_path(@collection, set: set_code),
+                  class: "font-medium text-gray-900 hover:text-indigo-600" do %>
+                <%= set_code %>
+              <% end %>
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-gray-100 rounded-full h-2">
+                  <div class="bg-indigo-500 h-2 rounded-full" style="width: <%= stat_percentage(count, @stats.total_count) %>%"></div>
+                </div>
+                <span class="text-sm text-gray-600 w-20 text-right">
+                  <%= count %> (<%= stat_format_percentage(count, @stats.total_count) %>)
+                </span>
+              </div>
+            </div>
+          <% end %>
+          <% if @stats.set_breakdown.size > 10 %>
+            <p class="text-sm text-gray-500 pt-2">
+              + <%= @stats.set_breakdown.size - 10 %> more sets
+            </p>
+          <% end %>
+        </div>
+      </section>
+
+      <!-- Color Distribution -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Colors</h2>
+        <div class="space-y-3">
+          <% @stats.color_breakdown.each do |color, count| %>
+            <% next if count.zero? %>
+            <div class="flex items-center justify-between">
+              <%= link_to collection_items_path(@collection, color: stat_color_code(color)),
+                  class: "flex items-center gap-2 hover:opacity-80" do %>
+                <span class="w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold <%= stat_color_class(color) %>">
+                  <%= stat_color_code(color) %>
+                </span>
+                <span class="font-medium text-gray-900"><%= stat_color_name(color) %></span>
+              <% end %>
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-gray-100 rounded-full h-2">
+                  <div class="h-2 rounded-full <%= color == "Multicolor" ? "bg-gradient-to-r from-amber-400 via-blue-400 to-green-400" : "bg-gray-500" %>"
+                       style="width: <%= stat_percentage(count, @stats.total_count) %>%"></div>
+                </div>
+                <span class="text-sm text-gray-600 w-20 text-right">
+                  <%= count %> (<%= stat_format_percentage(count, @stats.total_count) %>)
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <!-- Type Distribution -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Card Types</h2>
+        <div class="space-y-3">
+          <% @stats.type_breakdown.each do |type, count| %>
+            <% next if count.zero? %>
+            <div class="flex items-center justify-between">
+              <%= link_to collection_items_path(@collection, type: type),
+                  class: "font-medium text-gray-900 hover:text-indigo-600" do %>
+                <%= type %>
+              <% end %>
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-gray-100 rounded-full h-2">
+                  <div class="bg-purple-500 h-2 rounded-full" style="width: <%= stat_percentage(count, @stats.total_count) %>%"></div>
+                </div>
+                <span class="text-sm text-gray-600 w-20 text-right">
+                  <%= count %> (<%= stat_format_percentage(count, @stats.total_count) %>)
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <!-- Rarity Distribution -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Rarity</h2>
+        <div class="space-y-3">
+          <% @stats.rarity_breakdown.each do |rarity, count| %>
+            <% next if count.zero? %>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full <%= stat_rarity_class(rarity) %>"></span>
+                <span class="font-medium text-gray-900"><%= rarity %></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-gray-100 rounded-full h-2">
+                  <div class="<%= stat_rarity_class(rarity) %> h-2 rounded-full" style="width: <%= stat_percentage(count, @stats.total_count) %>%"></div>
+                </div>
+                <span class="text-sm text-gray-600 w-20 text-right">
+                  <%= count %> (<%= stat_format_percentage(count, @stats.total_count) %>)
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <!-- Condition Distribution -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Condition</h2>
+        <div class="space-y-3">
+          <% Item.conditions.keys.each do |condition| %>
+            <% count = @stats.condition_breakdown[condition] || 0 %>
+            <% next if count.zero? %>
+            <div class="flex items-center justify-between">
+              <%= link_to collection_items_path(@collection, condition: condition),
+                  class: "font-medium text-gray-900 hover:text-indigo-600" do %>
+                <%= condition_display_name(condition) %>
+              <% end %>
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-gray-100 rounded-full h-2">
+                  <div class="<%= stat_condition_bar_class(condition) %> h-2 rounded-full" style="width: <%= stat_percentage(count, @stats.total_count) %>%"></div>
+                </div>
+                <span class="text-sm text-gray-600 w-20 text-right">
+                  <%= count %> (<%= stat_format_percentage(count, @stats.total_count) %>)
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <!-- Finish Distribution -->
+      <section class="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Finish</h2>
+        <div class="space-y-3">
+          <% Item.finishes.keys.each do |finish| %>
+            <% count = @stats.finish_breakdown[finish] || 0 %>
+            <% next if count.zero? %>
+            <div class="flex items-center justify-between">
+              <%= link_to collection_items_path(@collection, finish: finish),
+                  class: "font-medium text-gray-900 hover:text-indigo-600" do %>
+                <%= finish.humanize.titleize %>
+              <% end %>
+              <div class="flex items-center gap-2">
+                <div class="w-24 bg-gray-100 rounded-full h-2">
+                  <div class="<%= finish == "nonfoil" ? "bg-gray-400" : "bg-gradient-to-r from-yellow-400 to-orange-400" %> h-2 rounded-full" style="width: <%= stat_percentage(count, @stats.total_count) %>%"></div>
+                </div>
+                <span class="text-sm text-gray-600 w-20 text-right">
+                  <%= count %> (<%= stat_format_percentage(count, @stats.total_count) %>)
+                </span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+    </div>
+  <% end %>
+</article>

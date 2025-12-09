@@ -168,4 +168,60 @@ RSpec.describe StorageUnit, type: :model do
       )
     end
   end
+
+  describe "#total_items_count", :mtgjson do
+    let(:card) { MTGJSON::Card.first }
+    let(:parent) { create(:storage_unit, collection: collection) }
+    let(:child) { create(:storage_unit, collection: collection, parent: parent) }
+
+    it "counts direct items" do
+      create_list(:item, 3, collection: collection, storage_unit: parent, card_uuid: card.uuid)
+      expect(parent.total_items_count).to eq(3)
+    end
+
+    it "includes nested items in count" do
+      create_list(:item, 2, collection: collection, storage_unit: parent, card_uuid: card.uuid)
+      create_list(:item, 3, collection: collection, storage_unit: child, card_uuid: card.uuid)
+
+      expect(parent.total_items_count).to eq(5)
+    end
+
+    it "handles deeply nested units" do
+      grandchild = create(:storage_unit, collection: collection, parent: child)
+      create(:item, collection: collection, storage_unit: grandchild, card_uuid: card.uuid)
+
+      expect(parent.total_items_count).to eq(1)
+    end
+  end
+
+  describe "#all_items", :mtgjson do
+    let(:card) { MTGJSON::Card.first }
+    let(:parent) { create(:storage_unit, collection: collection) }
+    let(:child) { create(:storage_unit, collection: collection, parent: parent) }
+
+    it "returns items from unit and children" do
+      item1 = create(:item, collection: collection, storage_unit: parent, card_uuid: card.uuid)
+      item2 = create(:item, collection: collection, storage_unit: child, card_uuid: card.uuid)
+
+      expect(parent.all_items).to contain_exactly(item1, item2)
+    end
+  end
+
+  describe "#ancestors" do
+    let(:grandparent) { create(:storage_unit, collection: collection, name: "Grandparent") }
+    let(:parent) { create(:storage_unit, collection: collection, parent: grandparent, name: "Parent") }
+    let(:child) { create(:storage_unit, collection: collection, parent: parent, name: "Child") }
+
+    it "returns empty array for root unit" do
+      expect(grandparent.ancestors).to eq([])
+    end
+
+    it "returns parent for first level child" do
+      expect(parent.ancestors).to eq([ grandparent ])
+    end
+
+    it "returns ancestors in order from root to immediate parent" do
+      expect(child.ancestors).to eq([ grandparent, parent ])
+    end
+  end
 end

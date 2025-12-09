@@ -3,13 +3,21 @@ Rails.application.routes.draw do
 
   # Collections and nested resources
   resources :collections do
+    member do
+      get :statistics
+    end
     resources :items, shallow: true do
       member do
         get :move
         patch :relocate
       end
     end
-    resources :storage_units, shallow: true
+    resources :storage_units, shallow: true do
+      member do
+        get :items
+      end
+    end
+    get "items/loose", to: "items#loose", as: :loose_items
   end
 
   # MTGJSON browsing (Phase 1: Card Discovery)
