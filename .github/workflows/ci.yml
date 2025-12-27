@@ -65,3 +65,47 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
+  unit-tests:
+    runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Setup database
+        run: bin/rails db:schema:load
+
+      - name: Run unit and integration tests
+        run: bundle exec rspec --exclude-pattern "spec/system/**/*_spec.rb"
+
+  system-tests:
+    runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Setup database
+        run: bin/rails db:schema:load
+
+      - name: Run system tests
+        run: bundle exec rspec spec/system --format progress
+
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: tmp/screenshots/
+          retention-days: 7
