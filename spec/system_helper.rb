@@ -3,8 +3,8 @@ require "rails_helper"
 require "capybara/rspec"
 require "capybara/cuprite"
 
-# Register Cuprite driver
-Capybara.register_driver :cuprite do |app|
+# Register with a unique name to avoid conflicts with cuprite's default registration
+Capybara.register_driver :cuprite_custom do |app|
   Capybara::Cuprite::Driver.new(
     app,
     window_size: [ 1400, 900 ],
@@ -13,13 +13,15 @@ Capybara.register_driver :cuprite do |app|
     process_timeout: 30,
     timeout: 10,
     inspector: ENV.key?("INSPECTOR"),
-    browser_options: ENV["CI"] ? { "no-sandbox" => nil } : {}
+    browser_path: ENV["CI"] ? "/usr/bin/google-chrome" : nil,
+    browser_options: ENV["CI"] ? {
+      "no-sandbox" => nil,
+      "disable-dev-shm-usage" => nil,
+      "disable-gpu" => nil
+    } : {}
   )
 end
 
-Capybara.default_driver = :cuprite
-
-# Server configuration
 Capybara.server = :puma, { Silent: true }
 Capybara.default_max_wait_time = 5
 
@@ -27,10 +29,9 @@ RSpec.configure do |config|
   config.include Capybara::DSL, type: :system
 
   config.before(:each, type: :system) do
-    driven_by :cuprite
+    driven_by :cuprite_custom
   end
 
-  # Screenshot on failure
   config.after(:each, type: :system) do |example|
     if example.exception
       timestamp = Time.current.strftime("%Y%m%d-%H%M%S")
