@@ -13,7 +13,7 @@ Capybara.register_driver :cuprite do |app|
     process_timeout: 30,
     timeout: 10,
     inspector: ENV.key?("INSPECTOR"),
-    browser_options: ENV["CI"] ? { "no-sandbox" => nil } : {}
+    browser_options: ENV["CI"] ? { "no-sandbox" => nil, "disable-dev-shm-usage" => nil } : {}
   )
 end
 

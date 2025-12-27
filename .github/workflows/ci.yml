@@ -94,7 +94,7 @@ jobs:
           bundler-cache: true
 
       - name: Install Chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@latest
 
       - name: Setup database
         run: bin/rails db:schema:load
