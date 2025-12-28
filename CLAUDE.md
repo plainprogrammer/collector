@@ -133,6 +133,23 @@ Refs: #issue (if applicable)
 - Infrastructure/setup tasks can be grouped logically
 - **Never commit failing tests** (except explicit red-green-refactor WIP)
 
+### Pre-Commit Verification
+
+**CRITICAL**: Before creating any commit, run `bin/ci` and ensure all checks pass:
+
+```bash
+bin/ci
+```
+
+This runs:
+- Setup checks
+- RuboCop style checks
+- Bundler security audit
+- Importmap vulnerability audit
+- Brakeman security analysis
+
+**Do not commit if any CI step fails.** Fix issues first, then commit.
+
 ## Code Style & Patterns
 
 ### Models
