@@ -1,9 +1,10 @@
 # Collector
 
-Collector provides way to manage diverse collections of collectible items, from
-collectible cards, to comic books, to your favorite action figures. The vision
-is to allow collectors to maintain collections built from defined catalogs, or
-to build custom curated catalogs for the things that matter to them.
+Collector provides a way to manage diverse collections of collectible items,
+from  collectible cards, to comic books, to your favorite action figures. The
+vision is to allow collectors to maintain collections built from defined
+catalogs, or to build custom curated catalogs for the things that matter to
+them.
 
 ## Running Locally
 
