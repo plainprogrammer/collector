@@ -23,9 +23,47 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <main class="container mx-auto mt-28 px-5 flex">
-      <%= yield %>
-    </main>
+  <body class="bg-gray-50">
+    <div class="min-h-screen">
+      <%# Navigation Header %>
+      <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16">
+            <div class="flex">
+              <div class="flex-shrink-0 flex items-center">
+                <h1 class="text-xl font-bold text-gray-900">Collector</h1>
+              </div>
+              <%# Navigation links will be added as features are implemented %>
+              <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <%# Placeholder for nav links %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <%# Flash Messages Frame %>
+      <%= turbo_frame_tag "flash_messages", class: "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" do %>
+        <% flash.each do |type, message| %>
+          <div class="rounded-md bg-<%= type == 'notice' ? 'green' : 'red' %>-50 p-4 mb-4">
+            <div class="flex">
+              <div class="ml-3">
+                <p class="text-sm font-medium text-<%= type == 'notice' ? 'green' : 'red' %>-800">
+                  <%= message %>
+                </p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <%# Main Content %>
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <%= yield %>
+      </main>
+    </div>
+
+    <%# Modal Frame - Global modal container %>
+    <%= turbo_frame_tag "modal" %>
   </body>
 </html>
