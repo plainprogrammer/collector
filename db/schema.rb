@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_28_062826) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_28_063156) do
   create_table "catalogs", id: :string, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -18,6 +18,37 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_28_062826) do
     t.string "source_type", null: false
     t.datetime "updated_at", null: false
     t.index ["source_type"], name: "index_catalogs_on_source_type"
+  end
+
+  create_table "mtg_cards", id: :string, force: :cascade do |t|
+    t.datetime "cached_at"
+    t.string "collector_number", null: false
+    t.json "color_identity", default: []
+    t.json "colors", default: []
+    t.datetime "created_at", null: false
+    t.json "finishes", default: []
+    t.json "frame_effects", default: []
+    t.string "mana_cost"
+    t.decimal "mana_value", precision: 10, scale: 2
+    t.string "mtg_set_id", null: false
+    t.string "name", null: false
+    t.text "oracle_text"
+    t.string "power"
+    t.json "prices", default: {}
+    t.json "promo_types", default: []
+    t.string "rarity"
+    t.string "scryfall_id"
+    t.string "set_code", null: false
+    t.json "source_data", default: {}
+    t.string "toughness"
+    t.string "type_line"
+    t.datetime "updated_at", null: false
+    t.string "uuid", null: false
+    t.index ["mtg_set_id"], name: "index_mtg_cards_on_mtg_set_id"
+    t.index ["name"], name: "index_mtg_cards_on_name"
+    t.index ["scryfall_id"], name: "index_mtg_cards_on_scryfall_id", unique: true
+    t.index ["set_code", "collector_number"], name: "index_mtg_cards_on_set_code_and_collector_number", unique: true
+    t.index ["uuid"], name: "index_mtg_cards_on_uuid", unique: true
   end
 
   create_table "mtg_sets", id: :string, force: :cascade do |t|
@@ -31,4 +62,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_28_062826) do
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_mtg_sets_on_code", unique: true
   end
+
+  add_foreign_key "mtg_cards", "mtg_sets"
 end
