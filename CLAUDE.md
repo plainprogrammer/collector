@@ -133,6 +133,52 @@ Refs: #issue (if applicable)
 - Infrastructure/setup tasks can be grouped logically
 - **Never commit failing tests** (except explicit red-green-refactor WIP)
 
+### Incremental Development & Linear History
+
+**Philosophy**: Commits should tell the story of how the project evolved, one logical step at a time.
+
+**Work in small, incremental steps:**
+
+1. **Break work into minimal units**: Each commit should represent the smallest meaningful change
+   - Add one dependency → commit
+   - Configure one tool → commit
+   - Write spec for one method → commit
+   - Implement that method → commit
+   - Add one model → commit
+
+2. **Verify after each step**: Run tests and `bin/ci` after each incremental change
+   - Catch issues immediately when introduced
+   - Each commit should leave the codebase in a working state
+
+3. **Commit immediately after verification**: Don't accumulate changes
+   - Make the commit as soon as the incremental work passes CI
+   - Don't wait to "batch up" multiple completed tasks
+
+4. **Create linear history**: Avoid merge commits and tangled history
+   - Work directly on main branch (single-user project)
+   - Each commit builds directly on the previous one
+   - Git log should read like a development diary
+
+**Examples of good incremental commits:**
+```
+[T001] Add ViewComponent gem
+[T002] Configure Tailwind CSS with MTG color theme
+[T003] Set up RSpec support structure and helpers
+[T004] Create ApplicationComponent base class
+```
+
+**Anti-patterns to avoid:**
+- ❌ Making multiple unrelated changes before committing
+- ❌ Committing "checkpoint" saves with broken code
+- ❌ Squashing meaningful incremental steps into one large commit
+- ❌ Writing code for hours before first commit
+
+**Benefits of incremental commits:**
+- Easy to understand what changed and why
+- Simple to revert specific changes if needed
+- Clear progression of feature development
+- Reviewable history that documents decisions
+
 ### Pre-Commit Verification
 
 **CRITICAL**: Before creating any commit, run `bin/ci` and ensure all checks pass:
