@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe MTGJSONAdapter do
+RSpec.describe MtgjsonAdapter do
   let(:catalog) { create(:catalog, :mtgjson) }
   let(:adapter) { described_class.new(catalog) }
 
