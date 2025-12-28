@@ -4,9 +4,17 @@ require "rails_helper"
 
 RSpec.describe Catalog, type: :model do
   describe "validations" do
-    it { is_expected.to validate_presence_of(:name) }
-    it { is_expected.to validate_presence_of(:source_type) }
-    it { is_expected.to validate_presence_of(:source_config) }
+    it "requires name to be present" do
+      catalog = described_class.new(source_type: "mtgjson", source_config: {})
+      expect(catalog).not_to be_valid
+      expect(catalog.errors[:name]).to include("can't be blank")
+    end
+
+    it "requires source_type to be present" do
+      catalog = described_class.new(name: "Test", source_config: {})
+      expect(catalog).not_to be_valid
+      expect(catalog.errors[:source_type]).to include("can't be blank")
+    end
 
     describe "source_type inclusion" do
       it "allows valid source types" do
