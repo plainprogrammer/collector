@@ -72,4 +72,5 @@ group :test do
   gem "capybara", require: false
   gem "cuprite", require: false
   gem "webmock", require: false
+  gem "shoulda-matchers", require: false
 end

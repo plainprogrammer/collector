@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_28_023348) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_28_062826) do
   create_table "catalogs", id: :string, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -18,5 +18,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_28_023348) do
     t.string "source_type", null: false
     t.datetime "updated_at", null: false
     t.index ["source_type"], name: "index_catalogs_on_source_type"
+  end
+
+  create_table "mtg_sets", id: :string, force: :cascade do |t|
+    t.integer "card_count"
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.string "icon_uri"
+    t.string "name", null: false
+    t.date "release_date"
+    t.string "set_type"
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_mtg_sets_on_code", unique: true
   end
 end
