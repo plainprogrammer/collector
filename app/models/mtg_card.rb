@@ -48,6 +48,31 @@ class MTGCard < ApplicationRecord
   # Alias for search for clearer intent
   scope :search_by_name, ->(query) { search(query) }
 
+  # Class methods for lookups
+  class << self
+    # Find card by MTGJSON UUID
+    # @param uuid [String] MTGJSON UUID
+    # @return [MTGCard, nil]
+    def find_by_uuid(uuid)
+      find_by(uuid: uuid)
+    end
+
+    # Find card by Scryfall ID
+    # @param scryfall_id [String] Scryfall ID
+    # @return [MTGCard, nil]
+    def find_by_scryfall_id(scryfall_id)
+      find_by(scryfall_id: scryfall_id)
+    end
+
+    # Find card by name and set code
+    # @param name [String] Card name
+    # @param set_code [String] Set code
+    # @return [MTGCard, nil]
+    def find_by_name_and_set(name, set_code)
+      find_by(name: name, set_code: set_code)
+    end
+  end
+
   # CatalogEntryInterface compliance
   # Returns the stable MTGJSON identifier for this card.
   #
